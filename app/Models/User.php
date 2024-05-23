@@ -4,7 +4,6 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -42,9 +41,9 @@ class User extends Authenticatable
         return $this->deleted_at ? 'Inativo' : 'Ativo';
     }
 
-    public function role(): BelongsTo
+    public function permissions(): BelongsToMany
     {
-        return $this->belongsTo(Role::class);
+        return $this->belongsToMany(Permission::class);
     }
 
     public function assistant(): HasOne
@@ -52,7 +51,7 @@ class User extends Authenticatable
         return $this->hasOne(Assistant::class);
     }
 
-    public function createdAssistants(): HasMany
+    public function myAssistants(): HasMany
     {
         return $this->hasMany(Assistant::class, 'created_by');
     }
