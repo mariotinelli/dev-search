@@ -18,7 +18,7 @@ class AssistantFactory extends Factory
             'user_id' => User::factory(),
             'created_by' => User::factory(),
             'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'updated_at' => fake()->boolean() ? Carbon::now() : null,
         ];
     }
 }
