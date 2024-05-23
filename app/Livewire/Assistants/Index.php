@@ -29,7 +29,8 @@ class Index extends Component
             ->withTrashed()
             ->where('created_by', auth()->user()->id)
             ->latest()
-            ->paginate(5);
+            ->orderBy('deleted_at')
+            ->paginate(10);
     }
 
     public function disable(int $id): void

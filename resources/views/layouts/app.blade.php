@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" >
+<html
+    lang="{{ str_replace('_', '-', app()->getLocale()) }}"
+    x-data="tallstackui_darkTheme()"
+    x-bind:class="{ 'dark bg-gray-700': darkTheme, 'bg-white': !darkTheme }" >
+>
 <head >
     <meta charset="utf-8" >
     <meta name="viewport"
@@ -15,12 +19,19 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap"
           rel="stylesheet" />
 
+    <style >
+        [x-cloak] {
+            display: none;
+        }
+    </style >
+
     <!-- Scripts -->
     <tallstackui:script />
     @livewireStyles
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head >
-<body class="font-sans antialiased" >
+<body class="font-sans antialiased"
+      x-cloak >
 
 <x-ts-toast />
 <x-ts-dialog />
