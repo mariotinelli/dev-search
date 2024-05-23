@@ -14,7 +14,7 @@ class AssistantFactory extends Factory
     public function definition(): array
     {
         return [
-            'cpf' => $this->faker->unique()->numerify('###.###.###-##'),
+            'cpf' => generateCpf(),
             'user_id' => User::factory(),
             'created_by' => User::factory(),
             'created_at' => Carbon::now(),

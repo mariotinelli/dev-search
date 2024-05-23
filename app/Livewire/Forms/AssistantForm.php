@@ -12,13 +12,13 @@ use Livewire\Form;
 class AssistantForm extends Form
 {
 
-    #[Validate('required')]
+    #[Validate(['required', 'max:255'])]
     public ?string $name = null;
 
-    #[Validate('required', 'email', 'unique:users,email')]
+    #[Validate(['required', 'email', 'unique:users,email'])]
     public ?string $email = null;
 
-    #[Validate('required', 'cpf', 'unique:assistants,cpf')]
+    #[Validate(['required', 'cpf', 'unique:assistants,cpf'])]
     public ?string $cpf = null;
 
     public function store(): void
