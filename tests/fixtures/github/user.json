@@ -1,0 +1,10 @@
+{
+    "login": "github-test",
+    "name": "GitHub Test",
+    "email": "githubtest@email.com",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1?v=4",
+    "followers": 10,
+    "bio": "GitHub Test",
+    "location": "GitHub Test",
+    "html_url": "https://github.com/github-test"
+}
