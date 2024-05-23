@@ -13,6 +13,7 @@ class PermissionFactory extends Factory
     public function definition(): array
     {
         return [
+            'name' => fake()->sentence(1),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ];
