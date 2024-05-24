@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Middleware\CtoMiddleware;
 use App\Livewire\Assistants;
 use Illuminate\Support\Facades\Route;
 
@@ -17,12 +18,15 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::prefix('/assistants')
-        ->name('assistants.')
+    Route::middleware(CtoMiddleware::class)
         ->group(function () {
-            Route::get('/', Assistants\Index::class)->name('index');
-            Route::get('/create', Assistants\Create::class)->name('create');
-            Route::get('/{id}/edit', Assistants\Index::class)->name('edit');
+            Route::prefix('/assistants')
+                ->name('assistants.')
+                ->group(function () {
+                    Route::get('/', Assistants\Index::class)->name('index');
+                    Route::get('/create', Assistants\Create::class)->name('create');
+                    Route::get('/{id}/edit', Assistants\Index::class)->name('edit');
+                });
         });
 });
 

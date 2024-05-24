@@ -11,6 +11,16 @@ beforeEach(function () {
     $this->actingAs($this->loggedUser);
 });
 
+it('should be only ctos can access this page', function () {
+
+    // Act
+    $response = $this->get(route('assistants.index'));
+
+    // Assert
+    $response->assertStatus(403);
+
+});
+
 todo('should be list all created assistants by the logged user', function () {
 
     // Arrange

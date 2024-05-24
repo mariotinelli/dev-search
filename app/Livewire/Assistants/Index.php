@@ -27,7 +27,6 @@ class Index extends Component
         return Assistant::query()
             ->with(['user'])
             ->withTrashed()
-            ->where('created_by', auth()->user()->id)
             ->latest()
             ->orderBy('deleted_at')
             ->paginate(10);

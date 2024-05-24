@@ -27,13 +27,21 @@
                     />
 
                     <x-ts-input
+                        x-mask="999.999.999-99"
                         label="CPF *"
                         placeholder="CPF do assistente"
                         wire:model="form.cpf"
                     />
                 </div >
 
-                <div class="flex justify-end" >
+                <div class="flex justify-end gap-3" >
+                    <x-ts-button
+                        href="{{ route('assistants.index') }}"
+                        color="red"
+                    >
+                        {{ __('Cancelar') }}
+                    </x-ts-button >
+
                     <x-ts-button
                         color="green"
                     >

@@ -43,6 +43,21 @@ class User extends Authenticatable
         return $this->deleted_at ? 'Inativo' : 'Ativo';
     }
 
+    public function isAdmin(): bool
+    {
+        return $this->role_id === RoleEnum::ADMIN;
+    }
+
+    public function isCto(): bool
+    {
+        return $this->role_id === RoleEnum::CTO;
+    }
+
+    public function isAssistant(): bool
+    {
+        return $this->role_id === RoleEnum::ASSISTANT;
+    }
+
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
