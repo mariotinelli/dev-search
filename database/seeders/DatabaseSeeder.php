@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\RoleEnum;
 use App\Models\Assistant;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -14,16 +15,21 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            PermissionSeeder::class
+            RoleSeeder::class
         ]);
 
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'role_id' => RoleEnum::ADMIN,
         ]);
 
-        Assistant::factory(10)->create([
-            'created_by' => User::first()->id,
+        User::factory()->create([
+            'name' => 'Test CTO',
+            'email' => 'test-cto@example.com',
+            'role_id' => RoleEnum::CTO,
         ]);
+
+        Assistant::factory(10)->create();
     }
 }

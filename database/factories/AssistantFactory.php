@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\RoleEnum;
 use App\Models\Assistant;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -15,8 +16,7 @@ class AssistantFactory extends Factory
     {
         return [
             'cpf' => generateCpf(),
-            'user_id' => User::factory(),
-            'created_by' => User::factory(),
+            'user_id' => User::factory(['role_id' => RoleEnum::ASSISTANT]),
             'created_at' => Carbon::now(),
             'updated_at' => fake()->boolean() ? Carbon::now() : null,
         ];

@@ -14,8 +14,7 @@ class Assistant extends Model
 
     protected $fillable = [
         'cpf',
-        'user_id',
-        'created_by'
+        'user_id'
     ];
 
     protected $appends = ['situation'];
@@ -28,10 +27,5 @@ class Assistant extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function createdBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'created_by');
     }
 }

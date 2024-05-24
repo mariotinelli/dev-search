@@ -24,7 +24,6 @@ it('should be create a assistant', function () {
     $newUser = User::factory()->make();
 
     $newAssistant = Assistant::factory()->make([
-        'created_by' => $this->loggedUser->id,
         'deleted_at' => null
     ]);
 
@@ -55,7 +54,6 @@ it('should be create a assistant', function () {
     assertDatabaseHas('assistants', [
         'cpf' => $newAssistant->cpf,
         'user_id' => User::whereEmail($newUser->email)->first()->id,
-        'created_by' => $this->loggedUser->id,
     ]);
 
 });

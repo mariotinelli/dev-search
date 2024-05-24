@@ -9,12 +9,8 @@ return new class extends Migration {
     {
         Schema::create('assistants', function (Blueprint $table) {
             $table->id();
-
             $table->string('cpf');
-
             $table->foreignId('user_id')->constrained();
-            $table->foreignId('created_by')->constrained('users');
-
             $table->timestamps();
             $table->softDeletes();
         });

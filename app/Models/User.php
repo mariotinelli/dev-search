@@ -3,9 +3,9 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\RoleEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -18,6 +18,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'role_id',
         'password',
     ];
 
@@ -33,6 +34,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role_id' => RoleEnum::class
         ];
     }
 
@@ -41,18 +43,13 @@ class User extends Authenticatable
         return $this->deleted_at ? 'Inativo' : 'Ativo';
     }
 
-    public function permissions(): BelongsToMany
+    public function role(): BelongsTo
     {
-        return $this->belongsToMany(Permission::class);
+        return $this->belongsTo(Role::class);
     }
 
     public function assistant(): HasOne
     {
         return $this->hasOne(Assistant::class);
-    }
-
-    public function myAssistants(): HasMany
-    {
-        return $this->hasMany(Assistant::class, 'created_by');
     }
 }

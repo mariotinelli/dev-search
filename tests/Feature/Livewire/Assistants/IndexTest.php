@@ -53,7 +53,6 @@ it('should be disable an assistant', function () {
     // Arrange
     $assistant = Assistant::factory()
         ->create([
-            'created_by' => $this->loggedUser->id,
             'deleted_at' => null
         ]);
 
@@ -71,7 +70,6 @@ it('should be restore an assistant', function () {
     // Arrange
     $assistant = Assistant::factory()
         ->create([
-            'created_by' => $this->loggedUser->id,
             'deleted_at' => now()
         ]);
 

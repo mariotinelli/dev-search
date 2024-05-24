@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Forms;
 
+use App\Enums\RoleEnum;
 use App\Mail\SendPasswordToNewUserMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -28,15 +29,11 @@ class AssistantForm extends Form
         $newUser = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
+            'role_id' => RoleEnum::ASSISTANT,
             'password' => once(fn(): string => Hash::make('password')),
         ]);
 
-        auth()->user()
-            ->myAssistants()
-            ->create([
-                ...$data,
-                'user_id' => $newUser->id,
-            ]);
+        $newUser->assistant()->create($data);
 
         Mail::to($newUser->email)
             ->send(new SendPasswordToNewUserMail(once(fn(): string => Hash::make('password'))));

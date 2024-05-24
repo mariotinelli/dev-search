@@ -1,9 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
-
 use App\Livewire\Assistants;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
@@ -22,9 +21,9 @@ Route::middleware('auth')->group(function () {
         ->name('assistants.')
         ->group(function () {
             Route::get('/', Assistants\Index::class)->name('index');
-            Route::get('/create', Assistants\Index::class)->name('create');
+            Route::get('/create', Assistants\Create::class)->name('create');
             Route::get('/{id}/edit', Assistants\Index::class)->name('edit');
         });
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

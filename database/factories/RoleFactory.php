@@ -2,13 +2,13 @@
 
 namespace Database\Factories;
 
-use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 
-class PermissionFactory extends Factory
+class RoleFactory extends Factory
 {
-    protected $model = Permission::class;
+    protected $model = Role::class;
 
     public function definition(): array
     {
