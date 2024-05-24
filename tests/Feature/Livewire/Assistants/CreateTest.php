@@ -38,7 +38,8 @@ it('should be create a assistant', function () {
 
     // Assert
     $lw->assertHasNoErrors()
-        ->assertRedirect(route('assistants.index'));
+        ->assertDispatched('modal:assistant-create-modal-close')
+        ->assertDispatched('assistant::created');
 
     Mail::assertQueued(SendPasswordToNewUserMail::class,
         function (SendPasswordToNewUserMail $mail) use ($newUser) {

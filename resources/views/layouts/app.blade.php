@@ -2,7 +2,7 @@
 <html
     lang="{{ str_replace('_', '-', app()->getLocale()) }}"
     x-data="tallstackui_darkTheme()"
-    x-bind:class="{ 'dark bg-gray-700': darkTheme, 'bg-white': !darkTheme }" >
+    x-bind:class="{ 'dark bg-gray-700': darkTheme, 'bg-white': !darkTheme }"
 >
 <head >
     <meta charset="utf-8" >
@@ -30,8 +30,10 @@
     @livewireStyles
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head >
-<body class="font-sans antialiased"
-      x-cloak >
+<body
+    class="font-sans antialiased"
+    x-cloak
+>
 
 <x-ts-toast />
 <x-ts-dialog />

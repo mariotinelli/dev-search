@@ -15,6 +15,10 @@ class Index extends Component
     use WithPagination;
     use Interactions;
 
+    protected $listeners = [
+        'assistant::created' => '$refresh'
+    ];
+
     public function render(): View
     {
         return view('livewire.assistants.index')

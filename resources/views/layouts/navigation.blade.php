@@ -13,10 +13,14 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex" >
-                    <x-nav-link :href="route('assistants.index')"
-                                :active="request()->routeIs('assistants.index', 'assistants.create', 'assistants.edit')" >
-                        {{ __('Assistentes') }}
-                    </x-nav-link >
+                    @if(auth()->user()->isCto())
+                        <x-nav-link
+                            :href="route('assistants.index')"
+                            :active="request()->routeIs('assistants.index', 'assistants.create', 'assistants.edit')"
+                        >
+                            {{ __('Assistentes') }}
+                        </x-nav-link >
+                    @endif
                 </div >
             </div >
 

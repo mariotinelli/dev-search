@@ -1,17 +1,22 @@
-<x-slot name="header" >
-    <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight" >
-        {{ __('Cadastrar Assistente') }}
-    </h2 >
-</x-slot >
+<div >
+    <a
+        x-on:click="$modalOpen('assistant-create-modal')"
+        class="text-sm text-gray-600 dark:text-gray-200 hover:bg-gray-100 hover:text-gray-900
+                dark:hover:text-gray-100 dark:hover:bg-gray-600 bg-white dark:bg-gray-800
+                py-2 px-4 rounded-xl border border-gray-300 dark:border-gray-100 hover:cursor-pointer"
+    >
+        {{ __('Cadastrar novo assistente') }}
+    </a >
 
-<div class="py-12" >
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8" >
+
+    <x-ts-modal
+        id="assistant-create-modal"
+        title="Cadastrar assistente"
+        center
+    >
         <div class="p-6 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg" >
 
-            <form
-                class="flex flex-col gap-6"
-                wire:submit.prevent="save"
-            >
+            <div class="flex flex-col gap-6" >
 
                 <x-ts-input
                     label="Nome *"
@@ -34,23 +39,28 @@
                     />
                 </div >
 
-                <div class="flex justify-end gap-3" >
-                    <x-ts-button
-                        href="{{ route('assistants.index') }}"
-                        color="red"
-                    >
-                        {{ __('Cancelar') }}
-                    </x-ts-button >
+                <x-slot:footer >
+                    <div class="flex justify-end gap-3" >
+                        <x-ts-button
+                            x-on:click="$modalClose('assistant-create-modal')"
+                            color="secondary"
+                            outline
+                        >
+                            {{ __('Cancelar') }}
+                        </x-ts-button >
 
-                    <x-ts-button
-                        color="green"
-                    >
-                        {{ __('Salvar') }}
-                    </x-ts-button >
-                </div >
+                        <x-ts-button
+                            wire:click="save"
+                            color="green"
+                        >
+                            {{ __('Salvar') }}
+                        </x-ts-button >
+                    </div >
+                </x-slot:footer >
 
-            </form >
+            </div >
 
         </div >
-    </div >
+    </x-ts-modal >
+
 </div >
