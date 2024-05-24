@@ -3,6 +3,7 @@
 namespace App\Livewire\Assistants;
 
 use App\Livewire\Forms\AssistantForm;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Livewire\Component;
 use TallStackUi\Traits\Interactions;
@@ -20,14 +21,30 @@ class Create extends Component
 
     public function save(): void
     {
-        $this->form->store();
+        $data = $this->form->validate();
 
-        $this->toast()
-            ->success('Assistente', 'Assistente criado com sucesso')
-            ->send();
+        DB::beginTransaction();
 
-        $this->dispatch('modal:assistant-create-modal-close');
+        try {
+            $this->form->store($data);
 
-        $this->dispatch('assistant::created');
+            DB::commit();
+
+            $this->toast()
+                ->success('Assistente', 'Assistente criado com sucesso')
+                ->send();
+
+            $this->dispatch('modal:assistant-create-modal-close');
+
+            $this->dispatch('assistant::created');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            $this->dispatch('modal:assistant-create-modal-close');
+
+            $this->toast()
+                ->error('Assistente', 'Erro ao criar assistente. Por favor, entre em contato com o suporte.')
+                ->send();
+        }
     }
 }

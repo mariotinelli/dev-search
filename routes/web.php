@@ -20,13 +20,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware(CtoMiddleware::class)
         ->group(function () {
-            Route::prefix('/assistants')
-                ->name('assistants.')
-                ->group(function () {
-                    Route::get('/', Assistants\Index::class)->name('index');
-                    Route::get('/create', Assistants\Create::class)->name('create');
-                    Route::get('/{id}/edit', Assistants\Index::class)->name('edit');
-                });
+            Route::get('/assistants', Assistants\Index::class)->name('assistants.index');
         });
 });
 

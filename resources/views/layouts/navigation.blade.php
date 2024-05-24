@@ -16,7 +16,7 @@
                     @if(auth()->user()->isCto())
                         <x-nav-link
                             :href="route('assistants.index')"
-                            :active="request()->routeIs('assistants.index', 'assistants.create', 'assistants.edit')"
+                            :active="request()->routeIs('assistants.index')"
                         >
                             {{ __('Assistentes') }}
                         </x-nav-link >

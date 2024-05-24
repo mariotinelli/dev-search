@@ -46,17 +46,26 @@
 
                 @if($hasActions)
                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-white flex items-center gap-2 @if($loop->last) rounded-br-lg @endif" >
-                        <a
-                            href="{{ route($routeEdit, $record->id) }}"
-                            class="text-sm text-white bg-blue-800 p-1.5 rounded-full"
-                        >
-                            <x-icons.pencil-square class="w-5 h-5" />
-                        </a >
+
+                        @if(isset($routeEdit))
+                            <a
+                                wire:key="{{ time() . '-edit-' . $record->id }}"
+                                title="Editar"
+                                href="{{ route($routeEdit, $record->id) }}"
+                                class="text-sm text-white bg-blue-800 p-1.5 rounded-full"
+                            >
+                                <x-icons.pencil-square class="w-5 h-5" />
+                            </a >
+                        @elseif(isset($editComponent))
+                            <div wire:key="{{ time() . '-edit-component-' . $record->id }}" >
+                                @livewire($editComponent, ['record' => $record], key($record->id))
+                            </div >
+                        @endif
 
                         @if(method_exists($record, 'trashed'))
                             @if($record->trashed())
                                 <button
-                                    title="Ativar usuário"
+                                    title="Ativar"
                                     wire:click="restore({{ $record->id }})"
                                     class="text-sm text-white bg-green-800 p-1.5 rounded-full"
                                 >
@@ -65,7 +74,7 @@
 
                             @else
                                 <button
-                                    title="Desativar usuário"
+                                    title="Desativar"
                                     wire:click="disable({{ $record->id }})"
                                     class="text-sm text-white bg-red-800 p-1.5 rounded-full"
                                 >

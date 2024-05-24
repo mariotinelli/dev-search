@@ -16,7 +16,8 @@ class Index extends Component
     use Interactions;
 
     protected $listeners = [
-        'assistant::created' => '$refresh'
+        'assistant::created' => '$refresh',
+        'assistant::updated' => '$refresh',
     ];
 
     public function render(): View

@@ -31,7 +31,7 @@
                         ['label' => 'Situação', 'column' => 'situation'],
                     ]"
                     :records="$this->assistants"
-                    routeEdit="assistants.edit"
+                    edit-component="assistants.edit"
                 />
             </div >
 

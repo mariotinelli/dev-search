@@ -4,11 +4,11 @@ namespace App\Livewire\Forms;
 
 use App\Enums\RoleEnum;
 use App\Mail\SendPasswordToNewUserMail;
+use App\Models\Assistant;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Livewire\Attributes\Validate;
+use Illuminate\Validation\Rule;
 use Livewire\Form;
 use TallStackUi\Traits\Interactions;
 
@@ -16,46 +16,59 @@ class AssistantForm extends Form
 {
     use Interactions;
 
-    #[Validate(['required', 'max:255'])]
+    public ?Assistant $assistant = null;
+
     public ?string $name = null;
 
-    #[Validate(['required', 'email', 'unique:users,email'])]
     public ?string $email = null;
 
-    #[Validate(['required', 'cpf', 'unique:assistants,cpf'])]
     public ?string $cpf = null;
 
-    public function store(): void
+    public function rules(): array
     {
-        $data = $this->validate();
+        return [
+            'name' => ['required', 'max:255'],
+            'email' => ['required', 'email', Rule::unique('users')->ignore($this->assistant?->user?->id)],
+            'cpf' => ['required', 'cpf', Rule::unique('assistants')->ignore($this->assistant?->id)],
+        ];
+    }
 
-        DB::beginTransaction();
+    public function setAssistant(Assistant $assistant): void
+    {
+        $this->assistant = $assistant;
 
-        try {
-            $newUser = User::create([
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'role_id' => RoleEnum::ASSISTANT,
-                'password' => once(fn(): string => Hash::make('password')),
-            ]);
+        $this->fill([
+            'name' => $assistant->user->name,
+            'email' => $assistant->user->email,
+            'cpf' => $assistant->cpf
+        ]);
+    }
 
-            $newUser->assistant()->create($data);
+    public function store(array $data): void
+    {
+        $newUser = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'role_id' => RoleEnum::ASSISTANT,
+            'password' => once(fn(): string => Hash::make('password')),
+        ]);
 
-            Mail::to($newUser->email)
-                ->send(new SendPasswordToNewUserMail(once(fn(): string => Hash::make('password'))));
+        $newUser->assistant()->create($data);
 
-            $this->reset();
+        Mail::to($newUser->email)
+            ->send(new SendPasswordToNewUserMail(once(fn(): string => Hash::make('password'))));
 
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
+        $this->reset();
+    }
 
-            $this->toast()
-                ->error('Erro', 'Ocorreu um erro ao criar o assistente. Por favor, contate o suporte.')
-                ->send();
+    public function update(array $data): void
+    {
+        $this->assistant->user()->update([
+            'name' => $data['name'],
+            'email' => $data['email'],
+        ]);
 
-            return;
-        }
+        $this->assistant->update($data);
     }
 
 }
