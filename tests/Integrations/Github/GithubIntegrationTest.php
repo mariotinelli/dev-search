@@ -1,7 +1,6 @@
 <?php
 
-use App\Integrations\Github\Entities\Repository;
-use App\Integrations\Github\Entities\User;
+use App\Integrations\Github\Entities\{Repository, User};
 use App\Integrations\Github\Exceptions\GithubUserNotFoundException;
 use App\Integrations\Github\GithubIntegration;
 use Illuminate\Support\Collection;

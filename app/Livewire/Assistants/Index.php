@@ -6,14 +6,13 @@ use App\Models\Assistant;
 use Illuminate\Contracts\View\View;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Attributes\Computed;
-use Livewire\Component;
-use Livewire\WithPagination;
+use Livewire\{Component, WithPagination};
 use TallStackUi\Traits\Interactions;
 
 class Index extends Component
 {
-    use WithPagination;
     use Interactions;
+    use WithPagination;
 
     protected $listeners = [
         'assistant::created' => '$refresh',

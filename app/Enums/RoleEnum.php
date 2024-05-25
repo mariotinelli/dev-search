@@ -4,7 +4,6 @@ namespace App\Enums;
 
 enum RoleEnum: int
 {
-
     case ADMIN = 1;
 
     case CTO = 2;
@@ -14,8 +13,8 @@ enum RoleEnum: int
     public function getLabel(): string
     {
         return match ($this) {
-            self::ADMIN => 'Admin',
-            self::CTO => 'CTO',
+            self::ADMIN     => 'Admin',
+            self::CTO       => 'CTO',
             self::ASSISTANT => 'Assistente',
         };
     }

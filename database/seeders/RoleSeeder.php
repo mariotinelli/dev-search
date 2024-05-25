@@ -12,19 +12,19 @@ class RoleSeeder extends Seeder
     {
         $roles = [
             [
-                'name' => RoleEnum::ADMIN->getLabel(),
+                'name'       => RoleEnum::ADMIN->getLabel(),
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ],
             [
-                'name' => RoleEnum::CTO->getLabel(),
+                'name'       => RoleEnum::CTO->getLabel(),
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ],
             [
-                'name' => RoleEnum::ASSISTANT->getLabel(),
+                'name'       => RoleEnum::ASSISTANT->getLabel(),
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ],
         ];
 

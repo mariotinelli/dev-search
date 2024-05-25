@@ -3,9 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\{Model, SoftDeletes};
 
 class Assistant extends Model
 {
@@ -14,7 +13,7 @@ class Assistant extends Model
 
     protected $fillable = [
         'cpf',
-        'user_id'
+        'user_id',
     ];
 
     protected $appends = ['situation'];

@@ -2,11 +2,9 @@
 
 namespace App\Integrations\Github;
 
-use App\Integrations\Github\Entities\Repository;
-use App\Integrations\Github\Entities\User;
+use App\Integrations\Github\Entities\{Repository, User};
 use App\Integrations\Github\Exceptions\GithubUserNotFoundException;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\{ConnectionException, PendingRequest};
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 
@@ -42,7 +40,7 @@ class GithubIntegration
         $response = $this->api->get('users');
 
         return collect($response->json())
-            ->map(fn($user) => User::createFromApi($user));
+            ->map(fn ($user) => User::createFromApi($user));
     }
 
     /**
@@ -53,6 +51,6 @@ class GithubIntegration
         $response = $this->api->get("users/{$username}/repos");
 
         return collect($response->json())
-            ->map(fn($repository) => Repository::createFromApi($repository));
+            ->map(fn ($repository) => Repository::createFromApi($repository));
     }
 }

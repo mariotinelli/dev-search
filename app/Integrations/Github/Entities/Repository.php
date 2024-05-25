@@ -5,10 +5,9 @@ namespace App\Integrations\Github\Entities;
 readonly class Repository
 {
     public function __construct(
-        public int     $stargazers_count,
+        public int $stargazers_count,
         public ?string $language = null,
-    )
-    {
+    ) {
     }
 
     public static function createFromApi(array $data): self

@@ -1,8 +1,8 @@
 <?php
 
 use App\Livewire\Assistants;
-use App\Models\Assistant;
-use App\Models\User;
+use App\Models\{Assistant, User};
+
 use function Pest\Livewire\livewire;
 
 beforeEach(function () {
@@ -40,21 +40,20 @@ todo('should be list all created assistants by the logged user', function () {
     $lw = livewire(Assistants\Index::class)
         ->assertViewHas('assistants', function ($assistants) {
             return count($assistants) == 10;
-        });;
+        });
 
     // Assert
 
-//    /** @var LengthAwarePaginator $lwAssistants */
-//    $lwAssistants = $lw->get('assistants');
-//
-//    expect($lwAssistants)->toBeInstanceOf(LengthAwarePaginator::class)
-//        ->and($lwAssistants)->toBe($assistants);
-//
-//    $lwAssistants->each(function ($assistant, $index) use ($assistants) {
-//        expect($assistant->id)->toBe($assistants[$index]->id)
-//            ->and($assistant->created_by)->toBe($this->loggedUser->id);
-//    });
-
+    //    /** @var LengthAwarePaginator $lwAssistants */
+    //    $lwAssistants = $lw->get('assistants');
+    //
+    //    expect($lwAssistants)->toBeInstanceOf(LengthAwarePaginator::class)
+    //        ->and($lwAssistants)->toBe($assistants);
+    //
+    //    $lwAssistants->each(function ($assistant, $index) use ($assistants) {
+    //        expect($assistant->id)->toBe($assistants[$index]->id)
+    //            ->and($assistant->created_by)->toBe($this->loggedUser->id);
+    //    });
 
 });
 
@@ -63,7 +62,7 @@ it('should be disable an assistant', function () {
     // Arrange
     $assistant = Assistant::factory()
         ->create([
-            'deleted_at' => null
+            'deleted_at' => null,
         ]);
 
     // Act
@@ -80,7 +79,7 @@ it('should be restore an assistant', function () {
     // Arrange
     $assistant = Assistant::factory()
         ->create([
-            'deleted_at' => now()
+            'deleted_at' => now(),
         ]);
 
     // Act

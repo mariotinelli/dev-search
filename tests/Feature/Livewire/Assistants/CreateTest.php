@@ -2,9 +2,9 @@
 
 use App\Livewire\Assistants;
 use App\Mail\SendPasswordToNewUserMail;
-use App\Models\Assistant;
-use App\Models\User;
+use App\Models\{Assistant, User};
 use Illuminate\Support\Facades\Mail;
+
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
 
@@ -24,15 +24,15 @@ it('should be create a assistant', function () {
     $newUser = User::factory()->make();
 
     $newAssistant = Assistant::factory()->make([
-        'deleted_at' => null
+        'deleted_at' => null,
     ]);
 
     // Act
     $lw = livewire(Assistants\Create::class)
         ->set('form', [
-            'name' => $newUser->name,
+            'name'  => $newUser->name,
             'email' => $newUser->email,
-            'cpf' => $newAssistant->cpf,
+            'cpf'   => $newAssistant->cpf,
         ])
         ->call('save');
 
@@ -41,19 +41,21 @@ it('should be create a assistant', function () {
         ->assertDispatched('modal:assistant-create-modal-close')
         ->assertDispatched('assistant::created');
 
-    Mail::assertQueued(SendPasswordToNewUserMail::class,
+    Mail::assertQueued(
+        SendPasswordToNewUserMail::class,
         function (SendPasswordToNewUserMail $mail) use ($newUser) {
             return $mail->hasFrom(config('mail.from.address'))
                 && $mail->hasTo($newUser->email);
-        });
+        }
+    );
 
     assertDatabaseHas('users', [
-        'name' => $newUser->name,
+        'name'  => $newUser->name,
         'email' => $newUser->email,
     ]);
 
     assertDatabaseHas('assistants', [
-        'cpf' => $newAssistant->cpf,
+        'cpf'     => $newAssistant->cpf,
         'user_id' => User::whereEmail($newUser->email)->first()->id,
     ]);
 

@@ -6,4 +6,4 @@ it('Entities should be readonly')
 
 it('Exceptions should extends laravel Exception class')
     ->expect("App\Integrations\Github\Exceptions")
-    ->toExtend("Exception");
+    ->toExtend('Exception');
