@@ -1,14 +1,12 @@
 <?php
 
-use App\Enums\RoleEnum;
-
 function redirectByLoggedUser(): string
 {
     if (!auth()->check()) {
         return 'login';
     }
 
-    return auth()->user()->role_id === RoleEnum::CTO
+    return auth()->user()->isCto()
         ? 'assistants.index'
-        : 'dashboard';
+        : 'assistants.index';
 }

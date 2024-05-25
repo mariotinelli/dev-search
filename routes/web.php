@@ -5,16 +5,7 @@ use App\Http\Middleware\CtoMiddleware;
 use App\Livewire\Assistants;
 use Illuminate\Support\Facades\Route;
 
-
-//Route::any('/', function () {
-//    // ...
-//})->name('home');
-
-Route::get('/')->name('home');
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/', fn() => to_route(redirectByLoggedUser()))->name('home');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -26,7 +17,5 @@ Route::middleware('auth')->group(function () {
             Route::get('/assistants', Assistants\Index::class)->name('assistants.index');
         });
 });
-
-Route::permanentRedirect('/', redirectByLoggedUser());
 
 require __DIR__ . '/auth.php';
