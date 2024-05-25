@@ -5,9 +5,12 @@ use App\Http\Middleware\CtoMiddleware;
 use App\Livewire\Assistants;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
+//Route::any('/', function () {
+//    // ...
+//})->name('home');
+
+Route::get('/')->name('home');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -23,5 +26,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/assistants', Assistants\Index::class)->name('assistants.index');
         });
 });
+
+Route::permanentRedirect('/', redirectByLoggedUser());
 
 require __DIR__ . '/auth.php';
