@@ -8,7 +8,7 @@
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8" >
         <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg" >
 
-            <div class="flex justify-between p-6" >
+            <div class="flex flex-col items-center sm:items-start sm:flex-row sm:justify-between p-6 gap-8" >
 
                 <h3 class="text-xl text-gray-900 dark:text-gray-100" >
                     {{ __('Listagem de Assistentes') }}
