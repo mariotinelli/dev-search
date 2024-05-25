@@ -14,7 +14,9 @@
                     {{ __('Listagem de Assistentes') }}
                 </h3 >
 
-                <livewire:assistants.create />
+                <livewire:assistants.create
+                    wire:key="{{ time() . 'create-assistant' }}"
+                />
 
             </div >
 
@@ -23,16 +25,23 @@
             </div >
 
             <div class="mx-6 my-12" >
-                <x-table
-                    :columns="[
-                        ['label' => 'Nome', 'column' => 'user.name'],
-                        ['label' => 'Email', 'column' => 'user.email'],
-                        ['label' => 'Cpf', 'column' => 'cpf'],
-                        ['label' => 'Situação', 'column' => 'situation'],
-                    ]"
-                    :records="$this->assistants"
-                    edit-component="assistants.edit"
-                />
+
+                <div class="text-gray-900 dark:text-gray-100 rounded-lg border border-gray-200 dark:border-gray-500 overflow-x-auto " >
+
+                    <table class="divide-y divide-gray-200 dark:divide-gray-500 w-full rounded-b-lg" >
+
+                        <x-assistants.table.thead />
+
+                        <x-assistants.table.tbody
+                            :assistants="$this->assistants"
+                        />
+                    </table >
+
+                </div >
+
+                <div class="py-4" >
+                    {{ $this->assistants->links() }}
+                </div >
             </div >
 
         </div >

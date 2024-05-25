@@ -5,8 +5,8 @@ namespace App\Livewire\Assistants;
 use App\Models\Assistant;
 use Illuminate\Contracts\View\View;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Livewire\Attributes\Computed;
 use Livewire\{Component, WithPagination};
+use Livewire\Attributes\Computed;
 use TallStackUi\Traits\Interactions;
 
 class Index extends Component
@@ -31,8 +31,8 @@ class Index extends Component
         return Assistant::query()
             ->with(['user'])
             ->withTrashed()
-            ->latest()
             ->orderBy('deleted_at')
+            ->latest()
             ->paginate(10);
     }
 

@@ -49,7 +49,7 @@
 
                         @if(isset($routeEdit))
                             <a
-                                wire:key="{{ time() . '-edit-' . $record->id }}"
+                                key="{{ time() . '-edit-' . $record->id }}"
                                 title="Editar"
                                 href="{{ route($routeEdit, $record->id) }}"
                                 class="text-sm text-white bg-blue-800 p-1.5 rounded-full"
@@ -57,7 +57,7 @@
                                 <x-icons.pencil-square class="w-5 h-5" />
                             </a >
                         @elseif(isset($editComponent))
-                            <div wire:key="{{ time() . '-edit-component-' . $record->id }}" >
+                            <div key="{{ time() . '-edit-component-' . $record->id }}" >
                                 @livewire($editComponent, ['record' => $record], key($record->id))
                             </div >
                         @endif
