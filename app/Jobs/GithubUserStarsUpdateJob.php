@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Integrations\Github\Exceptions\RateLimitedExceededException;
 use App\Integrations\Github\GithubIntegration;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -9,7 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 
-class PullGithubUserStarsJob implements ShouldQueue
+class GithubUserStarsUpdateJob implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -26,10 +27,19 @@ class PullGithubUserStarsJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $repositories = (new GithubIntegration())->getAllUserRepositories($this->username);
+        try {
+            $repositories = (new GithubIntegration())->getAllUserRepositories($this->username);
 
-        foreach ($repositories as $repository) {
-            // Do something with the repository
+            $stars = 0;
+
+            foreach ($repositories as $repository) {
+                $stars += $repository->stargazers_count;
+            }
+
+            // TODO: Update user stars in database
+
+        } catch (RateLimitedExceededException $e) {
+            $this->release($e->getRetryAfter());
         }
     }
 }

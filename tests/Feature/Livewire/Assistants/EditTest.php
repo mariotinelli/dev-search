@@ -2,6 +2,7 @@
 
 use App\Livewire\Assistants;
 use App\Models\{Assistant, User};
+
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
 
@@ -25,9 +26,9 @@ it('should be edit a assistant', function () {
     // Act
     $lw = livewire(Assistants\Edit::class, ['assistant' => $this->assistant])
         ->set('form', [
-            'name' => $newUserData->name,
+            'name'  => $newUserData->name,
             'email' => $newUserData->email,
-            'cpf' => $newAssistantData->cpf,
+            'cpf'   => $newAssistantData->cpf,
         ])
         ->call('save');
 
@@ -37,12 +38,12 @@ it('should be edit a assistant', function () {
         ->assertDispatched('assistant::updated');
 
     assertDatabaseHas('users', [
-        'name' => $newUserData->name,
+        'name'  => $newUserData->name,
         'email' => $newUserData->email,
     ]);
 
     assertDatabaseHas('assistants', [
-        'cpf' => $newAssistantData->cpf,
+        'cpf'     => $newAssistantData->cpf,
         'user_id' => User::whereEmail($newUserData->email)->first()->id,
     ]);
 

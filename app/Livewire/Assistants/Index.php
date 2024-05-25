@@ -5,8 +5,8 @@ namespace App\Livewire\Assistants;
 use App\Models\Assistant;
 use Illuminate\Contracts\View\View;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Livewire\{Component, WithPagination};
 use Livewire\Attributes\Computed;
+use Livewire\{Component, WithPagination};
 use TallStackUi\Traits\Interactions;
 
 class Index extends Component

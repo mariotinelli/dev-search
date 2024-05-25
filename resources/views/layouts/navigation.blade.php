@@ -15,6 +15,12 @@
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex" >
                     @if(auth()->user()->isCto())
                         <x-nav-link
+                            :href="route('developers.index')"
+                            :active="request()->routeIs('developers.index')"
+                        >
+                            {{ __('Desenvolvedores') }}
+                        </x-nav-link >
+                        <x-nav-link
                             :href="route('assistants.index')"
                             :active="request()->routeIs('assistants.index')"
                         >
@@ -109,6 +115,13 @@
     <div :class="{'block': open, 'hidden': ! open}"
          class="hidden sm:hidden" >
         <div class="pt-2 pb-3 space-y-1" >
+            <x-responsive-nav-link
+                :href="route('developers.index')"
+                :active="request()->routeIs('developers.index')"
+            >
+                {{ __('Desenvolvedores') }}
+            </x-responsive-nav-link >
+
             <x-responsive-nav-link
                 :href="route('assistants.index')"
                 :active="request()->routeIs('assistants.index')"

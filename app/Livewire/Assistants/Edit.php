@@ -25,9 +25,9 @@ class Edit extends Component
     public function mount(): void
     {
         $this->form->fill([
-            'name' => $this->assistant->user->name,
+            'name'  => $this->assistant->user->name,
             'email' => $this->assistant->user->email,
-            'cpf' => $this->assistant->cpf,
+            'cpf'   => $this->assistant->cpf,
         ]);
     }
 
