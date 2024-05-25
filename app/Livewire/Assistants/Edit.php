@@ -15,7 +15,7 @@ class Edit extends Component
 
     public AssistantForm $form;
 
-    public ?Assistant $record = null;
+    public ?Assistant $assistant = null;
 
     public function render(): View
     {
@@ -24,7 +24,11 @@ class Edit extends Component
 
     public function mount(): void
     {
-        $this->form->setAssistant($this->record);
+        $this->form->fill([
+            'name' => $this->assistant->user->name,
+            'email' => $this->assistant->user->email,
+            'cpf' => $this->assistant->cpf,
+        ]);
     }
 
     public function save(): void
@@ -34,7 +38,7 @@ class Edit extends Component
         DB::beginTransaction();
 
         try {
-            $this->form->update($data);
+            $this->form->update($data, $this->assistant);
 
             DB::commit();
 
@@ -42,13 +46,14 @@ class Edit extends Component
                 ->success('Assistente', 'Assistente atualizado com sucesso')
                 ->send();
 
-            $this->dispatch('modal:assistant-edit-modal-' . $this->record->id . '-close');
-
             $this->dispatch('assistant::updated');
+
+            $this->dispatch('modal:assistant-edit-modal-' . $this->assistant->id . '-close');
+
         } catch (\Exception $e) {
             DB::rollBack();
 
-            $this->dispatch('modal:assistant-edit-modal-' . $this->record->id . '-close');
+            $this->dispatch('modal:assistant-edit-modal-' . $this->assistant->id . '-close');
 
             $this->toast()
                 ->error('Assistente', 'Erro ao atualizar assistente. Por favor, entre em contato com o suporte.')

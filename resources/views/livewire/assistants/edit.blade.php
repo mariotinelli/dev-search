@@ -1,5 +1,5 @@
 @php
-    $modalId = 'assistant-edit-modal-' . $record->id;
+    $modalId = 'assistant-edit-modal-' . $assistant->id;
 @endphp
 
 <div class="flex" >
@@ -16,7 +16,7 @@
         title="Editar assistente"
         center
     >
-        <div class="p-6 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg" >
+        <div class="p-6 bg-white dark:bg-transparent overflow-hidden shadow-sm sm:rounded-lg" >
 
             <div class="flex flex-col gap-6" >
 
@@ -26,8 +26,8 @@
                     <div class="flex justify-end gap-3" >
                         <x-ts-button
                             x-on:click="$modalClose('{{ $modalId }}')"
-                            color="secondary"
-                            outline
+                            color="red"
+                            light
                         >
                             {{ __('Cancelar') }}
                         </x-ts-button >
@@ -35,6 +35,7 @@
                         <x-ts-button
                             wire:click="save"
                             color="green"
+                            light
                         >
                             {{ __('Salvar') }}
                         </x-ts-button >

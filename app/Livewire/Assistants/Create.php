@@ -34,9 +34,10 @@ class Create extends Component
                 ->success('Assistente', 'Assistente criado com sucesso')
                 ->send();
 
+            $this->dispatch('assistant::created');
+
             $this->dispatch('modal:assistant-create-modal-close');
 
-            $this->dispatch('assistant::created');
         } catch (\Exception $e) {
             DB::rollBack();
 

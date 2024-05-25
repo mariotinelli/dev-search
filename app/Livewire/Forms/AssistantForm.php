@@ -25,9 +25,9 @@ class AssistantForm extends Form
     public function rules(): array
     {
         return [
-            'name'  => ['required', 'max:255'],
+            'name' => ['required', 'max:255'],
             'email' => ['required', 'email', Rule::unique('users')->ignore($this->assistant?->user?->id)],
-            'cpf'   => ['required', 'cpf', Rule::unique('assistants')->ignore($this->assistant?->id)],
+            'cpf' => ['required', 'cpf', Rule::unique('assistants')->ignore($this->assistant?->id)],
         ];
     }
 
@@ -36,33 +36,35 @@ class AssistantForm extends Form
         $this->assistant = $assistant;
 
         $this->fill([
-            'name'  => $assistant->user->name,
+            'name' => $assistant->user->name,
             'email' => $assistant->user->email,
-            'cpf'   => $assistant->cpf,
+            'cpf' => $assistant->cpf,
         ]);
     }
 
     public function store(array $data): void
     {
         $newUser = User::create([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
-            'role_id'  => RoleEnum::ASSISTANT,
-            'password' => once(fn (): string => Hash::make('password')),
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'role_id' => RoleEnum::ASSISTANT,
+            'password' => once(fn(): string => Hash::make('password')),
         ]);
 
         $newUser->assistant()->create($data);
 
         Mail::to($newUser->email)
-            ->send(new SendPasswordToNewUserMail(once(fn (): string => Hash::make('password'))));
+            ->send(new SendPasswordToNewUserMail(once(fn(): string => Hash::make('password'))));
 
         $this->reset();
     }
 
-    public function update(array $data): void
+    public function update(array $data, Assistant $assistant): void
     {
+        $this->setAssistant($assistant);
+
         $this->assistant->user()->update([
-            'name'  => $data['name'],
+            'name' => $data['name'],
             'email' => $data['email'],
         ]);
 

@@ -24,7 +24,7 @@
 
             <div key="{{ time() . '-edit-component-' . $assistant->id }}" >
                 <livewire:assistants.edit
-                    :record="$assistant"
+                    :assistant="$assistant"
                     key="{{ time() . '-' . $assistant->id }}"
                 />
             </div >
