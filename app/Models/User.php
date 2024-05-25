@@ -3,45 +3,69 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\RoleEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasOne};
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
+    use Notifiable;
+    use SoftDeletes;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
+        'role_id',
         'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    protected $appends = ['situation'];
+
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
+            'role_id'           => RoleEnum::class,
         ];
+    }
+
+    public function getSituationAttribute(): string
+    {
+        return $this->deleted_at ? 'Inativo' : 'Ativo';
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role_id === RoleEnum::ADMIN;
+    }
+
+    public function isCto(): bool
+    {
+        return $this->role_id === RoleEnum::CTO;
+    }
+
+    public function isAssistant(): bool
+    {
+        return $this->role_id === RoleEnum::ASSISTANT;
+    }
+
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function assistant(): HasOne
+    {
+        return $this->hasOne(Assistant::class);
     }
 }
