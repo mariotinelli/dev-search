@@ -38,8 +38,7 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/Helpers/cpf.php",
-            "app/Helpers/routes.php"
+            "app/Helpers/cpf.php"
         ]
     },
     "autoload-dev": {

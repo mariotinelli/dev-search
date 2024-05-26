@@ -13,9 +13,18 @@ enum RoleEnum: int
     public function getLabel(): string
     {
         return match ($this) {
-            self::ADMIN     => 'Admin',
-            self::CTO       => 'CTO',
+            self::ADMIN => 'Admin',
+            self::CTO => 'CTO',
             self::ASSISTANT => 'Assistente',
+        };
+    }
+
+    public static function fromValue(int $value): self
+    {
+        return match ($value) {
+            self::ADMIN->value => self::ADMIN,
+            self::CTO->value => self::CTO,
+            self::ASSISTANT->value => self::ASSISTANT
         };
     }
 }

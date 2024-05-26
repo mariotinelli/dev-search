@@ -34,14 +34,19 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password'          => 'hashed',
-            'role_id'           => RoleEnum::class,
+            'password' => 'hashed',
+            'role_id' => RoleEnum::class,
         ];
     }
 
     public function getSituationAttribute(): string
     {
         return $this->deleted_at ? 'Inativo' : 'Ativo';
+    }
+
+    public function hasRole(string $role): bool
+    {
+        return $this->role_id === RoleEnum::fromValue($role);
     }
 
     public function isAdmin(): bool
