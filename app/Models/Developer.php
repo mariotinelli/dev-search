@@ -15,6 +15,7 @@ class Developer extends Model
         'location',
         'bio',
         'followers',
+        'repos',
         'stars',
         'score',
     ];

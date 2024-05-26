@@ -9,8 +9,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
+use Illuminate\Support\Collection;
 
-class GithubUserStarsUpdateJob implements ShouldQueue
+class GithubDeveloperRepositoriesJob implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -18,8 +19,11 @@ class GithubUserStarsUpdateJob implements ShouldQueue
     use SerializesModels;
 
     public function __construct(
-        private readonly string $username
-    ) {
+        private readonly string $username,
+        private readonly int    $page = 1,
+        private readonly int    $perPage = 100,
+    )
+    {
     }
 
     /**
@@ -30,16 +34,27 @@ class GithubUserStarsUpdateJob implements ShouldQueue
         try {
             $repositories = (new GithubIntegration())->getAllUserRepositories($this->username);
 
-            $stars = 0;
+            $stars = $this->calculeDeveloperStars($repositories);
 
-            foreach ($repositories as $repository) {
-                $stars += $repository->stargazers_count;
+            GithubDeveloperUpdateJob::dispatch($this->username, sizeof($repositories), $stars);
+
+            if (sizeof($repositories) > 99) {
+                GithubDeveloperRepositoriesJob::dispatch($this->username, $this->page + 1);
             }
-
-            // TODO: Update user stars in database
 
         } catch (RateLimitedExceededException $e) {
             $this->release($e->getRetryAfter());
         }
+    }
+
+    private function calculeDeveloperStars(Collection $repositories): int
+    {
+        $stars = 0;
+
+        foreach ($repositories as $repository) {
+            $stars += $repository->stargazers_count;
+        }
+
+        return $stars;
     }
 }

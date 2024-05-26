@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Integrations\Github\Exceptions\{RateLimitedExceededException, UserNotFoundException};
 use App\Integrations\Github\GithubIntegration;
+use App\Models\Developer;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -19,7 +20,8 @@ class GithubUserSaveJob implements ShouldQueue
 
     public function __construct(
         public readonly string $username,
-    ) {
+    )
+    {
     }
 
     /**
@@ -32,9 +34,20 @@ class GithubUserSaveJob implements ShouldQueue
 
             $user = (new GithubIntegration())->getUser($this->username);
 
-            // TODO: Save user to database
+            Developer::updateOrCreate(
+                ['login' => $user->login],
+                [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'location' => $user->location,
+                    'bio' => $user->bio,
+                    'avatar_url' => $user->avatarUrl,
+                    'html_url' => $user->htmlUrl,
+                    'followers' => $user->followers
+                ]
+            );
 
-            GithubUserStarsUpdateJob::dispatch($user->login);
+            GithubDeveloperRepositoriesJob::dispatch($user->login);
 
         } catch (RateLimitedExceededException $e) {
             $this->release($e->getRetryAfter());

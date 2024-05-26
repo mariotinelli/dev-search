@@ -3,10 +3,13 @@
 namespace App\Integrations\Github;
 
 use App\Integrations\Github\Entities\{Repository, User};
-use App\Integrations\Github\Exceptions\{AccessTokenNotFoundException, RateLimitedExceededException, UserNotFoundException};
+use App\Integrations\Github\Exceptions\{AccessTokenNotFoundException,
+    RateLimitedExceededException,
+    UserNotFoundException};
 use Illuminate\Http\Client\{ConnectionException, PendingRequest};
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class GithubIntegration
 {
@@ -23,7 +26,7 @@ class GithubIntegration
 
         $this->api = Http::baseUrl('https://api.github.com/')
             ->withHeaders([
-                'Accept'        => 'application/vnd.github.v3+json',
+                'Accept' => 'application/vnd.github.v3+json',
                 'Authorization' => 'Bearer ' . config('services.github.token'),
             ]);
     }
@@ -56,7 +59,8 @@ class GithubIntegration
         string $expression = null,
         int    $page = 1,
         int    $perPage = 100
-    ): Collection {
+    ): Collection
+    {
         $defaultExpression = "type:User+location:Brazil+location:Brasil";
 
         if ($expression) {
@@ -69,8 +73,12 @@ class GithubIntegration
             throw new RateLimitedExceededException();
         }
 
+        if ($response->json()['total_count'] > 1000) {
+            Log::info('The search returned more than 1000 results');
+        }
+
         return collect($response->json()['items'])
-            ->map(fn ($user) => User::createFromApi($user));
+            ->map(fn($user) => User::createFromApi($user));
     }
 
     /**
@@ -86,7 +94,7 @@ class GithubIntegration
         }
 
         return collect($response->json())
-            ->map(fn ($repository) => Repository::createFromApi($repository));
+            ->map(fn($repository) => Repository::createFromApi($repository));
     }
 
     /**

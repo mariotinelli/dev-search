@@ -20,6 +20,7 @@ return new class extends Migration {
             $table->text('bio')->nullable();
 
             $table->integer('followers')->default(0);
+            $table->integer('repos')->default(0);
             $table->integer('stars')->default(0);
             $table->integer('score')->default(0);
 
