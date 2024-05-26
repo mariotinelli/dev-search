@@ -25,7 +25,7 @@ class GithubIntegration
 
         $this->api = Http::baseUrl('https://api.github.com/')
             ->withHeaders([
-                'Accept'        => 'application/vnd.github.v3+json',
+                'Accept' => 'application/vnd.github.v3+json',
                 'Authorization' => 'Bearer ' . config('services.github.token'),
             ]);
     }
@@ -58,7 +58,8 @@ class GithubIntegration
         string $expression = null,
         int    $page = 1,
         int    $perPage = 100
-    ): Collection {
+    ): Collection
+    {
         $defaultExpression = "type:User+location:Brazil+location:Brasil";
 
         if ($expression) {
@@ -76,7 +77,7 @@ class GithubIntegration
         }
 
         return collect($response->json()['items'])
-            ->map(fn ($user) => User::createFromApi($user));
+            ->map(fn($user) => User::createFromApi($user));
     }
 
     /**
@@ -92,7 +93,7 @@ class GithubIntegration
         }
 
         return collect($response->json())
-            ->map(fn ($repository) => Repository::createFromApi($repository));
+            ->map(fn($repository) => Repository::createFromApi($repository));
     }
 
     /**
@@ -101,12 +102,12 @@ class GithubIntegration
      */
     public function checkIfUserHasActivitiesInTheLastYear(string $username): bool
     {
-        $filterAuthor        = "author:{$username}";
-        $filterCommitter     = "committer:{$username}";
-        $filterAuthorDate    = "author-date:>=" . now()->subYear()->startOfYear()->format('Y-m-d');
+        $filterAuthor = "author:{$username}";
+        $filterCommitter = "committer:{$username}";
+        $filterAuthorDate = "author-date:>=" . now()->subYear()->startOfYear()->format('Y-m-d');
         $filterCommitterDate = "committer-date:>=" . now()->subYear()->startOfYear()->format('Y-m-d');
 
-        $response = $this->api->get("search/commits?q={$filterAuthor}+$filterAuthorDate+{$filterCommitter}+{$filterCommitterDate}");
+        $response = $this->api->get("search/commits?q={$filterAuthor}+$filterAuthorDate+{$filterCommitter}+{$filterCommitterDate}&per_page=1");
 
         if ($response->status() === 403 && $response->header('X-RateLimit-Remaining') == 0) {
             throw new RateLimitedExceededException();

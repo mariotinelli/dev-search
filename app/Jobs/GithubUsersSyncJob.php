@@ -24,7 +24,8 @@ class GithubUsersSyncJob implements ShouldQueue
         private readonly string $locationExpr = 'location:Brazil+location:Brasil',
         private readonly string $createdStart = '2008-01-01',
         private readonly string $createdEnd = '2008-01-08',
-    ) {
+    )
+    {
     }
 
     /**
@@ -53,7 +54,7 @@ class GithubUsersSyncJob implements ShouldQueue
     private function dispatchGithubUserSaveJob(Collection $users): void
     {
         foreach ($users as $user) {
-            $hasActivitiesOnLastYear = (new GithubIntegration())->checkIfUserHasActivitiesInTheLastYear($users);
+            $hasActivitiesOnLastYear = (new GithubIntegration())->checkIfUserHasActivitiesInTheLastYear($user->login);
 
             if ($hasActivitiesOnLastYear) {
                 GithubUserSaveJob::dispatch($user->login);
@@ -70,7 +71,7 @@ class GithubUsersSyncJob implements ShouldQueue
         }
 
         $newCreatedStart = Carbon::parse($this->createdEnd)->addDay()->format('Y-m-d');
-        $newCreatedEnd   = Carbon::parse($newCreatedStart)->addWeek()->format('Y-m-d');
+        $newCreatedEnd = Carbon::parse($newCreatedStart)->addWeek()->format('Y-m-d');
 
         if ($newCreatedStart < Carbon::now()->format('Y-m-d')) {
             GithubUsersSyncJob::dispatch(createdStart: $newCreatedStart, createdEnd: $newCreatedEnd);
