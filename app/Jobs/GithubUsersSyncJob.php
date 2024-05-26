@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
+use Illuminate\Support\Collection;
 
 class GithubUsersSyncJob implements ShouldQueue
 {
@@ -36,25 +37,43 @@ class GithubUsersSyncJob implements ShouldQueue
         try {
             $users = (new GithubIntegration())->searchUsers($expression, $this->page);
 
-            foreach ($users as $user) {
-                GithubUserSaveJob::dispatch($user->login);
-            }
+            $this->dispatchGithubUserSaveJob($users);
 
-            if (sizeof($users) > 99) {
-                GithubUsersSyncJob::dispatch($this->page + 1);
-            } else {
-
-                $newCreatedStart = Carbon::parse($this->createdEnd)->addDay()->format('Y-m-d');
-                $newCreatedEnd   = Carbon::parse($newCreatedStart)->addWeek()->format('Y-m-d');
-
-                if ($newCreatedStart < Carbon::now()->format('Y-m-d')) {
-                    GithubUsersSyncJob::dispatch(createdStart: $newCreatedStart, createdEnd: $newCreatedEnd);
-                }
-
-            }
+            $this->checkToDispatchGithubUsersSyncJob($users);
 
         } catch (RateLimitedExceededException $e) {
             $this->release($e->getRetryAfter());
+        }
+    }
+
+    /**
+     * @throws RateLimitedExceededException
+     * @throws ConnectionException
+     */
+    private function dispatchGithubUserSaveJob(Collection $users): void
+    {
+        foreach ($users as $user) {
+            $hasActivitiesOnLastYear = (new GithubIntegration())->checkIfUserHasActivitiesInTheLastYear($users);
+
+            if ($hasActivitiesOnLastYear) {
+                GithubUserSaveJob::dispatch($user->login);
+            }
+        }
+    }
+
+    private function checkToDispatchGithubUsersSyncJob(Collection $users): void
+    {
+        if (sizeof($users) > 99) {
+            GithubUsersSyncJob::dispatch($this->page + 1);
+
+            return;
+        }
+
+        $newCreatedStart = Carbon::parse($this->createdEnd)->addDay()->format('Y-m-d');
+        $newCreatedEnd   = Carbon::parse($newCreatedStart)->addWeek()->format('Y-m-d');
+
+        if ($newCreatedStart < Carbon::now()->format('Y-m-d')) {
+            GithubUsersSyncJob::dispatch(createdStart: $newCreatedStart, createdEnd: $newCreatedEnd);
         }
     }
 }

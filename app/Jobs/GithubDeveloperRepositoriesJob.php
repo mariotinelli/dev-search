@@ -22,8 +22,7 @@ class GithubDeveloperRepositoriesJob implements ShouldQueue
         private readonly string $username,
         private readonly int    $page = 1,
         private readonly int    $perPage = 100,
-    )
-    {
+    ) {
     }
 
     /**

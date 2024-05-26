@@ -8,8 +8,7 @@ use App\Integrations\Github\Exceptions\{AccessTokenNotFoundException,
     UserNotFoundException};
 use Illuminate\Http\Client\{ConnectionException, PendingRequest};
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\{Http, Log};
 
 class GithubIntegration
 {
@@ -26,7 +25,7 @@ class GithubIntegration
 
         $this->api = Http::baseUrl('https://api.github.com/')
             ->withHeaders([
-                'Accept' => 'application/vnd.github.v3+json',
+                'Accept'        => 'application/vnd.github.v3+json',
                 'Authorization' => 'Bearer ' . config('services.github.token'),
             ]);
     }
@@ -45,7 +44,7 @@ class GithubIntegration
         }
 
         if ($response->status() === 403 && $response->header('X-RateLimit-Remaining') == 0) {
-            throw new RateLimitedExceededException(retryAfter: $response->header('Retry-After'));
+            throw new RateLimitedExceededException();
         }
 
         return User::createFromApi($response->json());
@@ -59,8 +58,7 @@ class GithubIntegration
         string $expression = null,
         int    $page = 1,
         int    $perPage = 100
-    ): Collection
-    {
+    ): Collection {
         $defaultExpression = "type:User+location:Brazil+location:Brasil";
 
         if ($expression) {
@@ -78,7 +76,7 @@ class GithubIntegration
         }
 
         return collect($response->json()['items'])
-            ->map(fn($user) => User::createFromApi($user));
+            ->map(fn ($user) => User::createFromApi($user));
     }
 
     /**
@@ -89,28 +87,31 @@ class GithubIntegration
     {
         $response = $this->api->get("users/{$username}/repos");
 
-        if ($response->status() === 403 && $response->header('X-RateLimit-Remaining') === 0) {
+        if ($response->status() === 403 && $response->header('X-RateLimit-Remaining') == 0) {
             throw new RateLimitedExceededException();
         }
 
         return collect($response->json())
-            ->map(fn($repository) => Repository::createFromApi($repository));
+            ->map(fn ($repository) => Repository::createFromApi($repository));
     }
 
     /**
-     * @throws ConnectionException
      * @throws RateLimitedExceededException
+     * @throws ConnectionException
      */
-    public function getUserStars(User $user): int
+    public function checkIfUserHasActivitiesInTheLastYear(string $username): bool
     {
-        $repositories = $this->getAllUserRepositories($user->login);
+        $filterAuthor        = "author:{$username}";
+        $filterCommitter     = "committer:{$username}";
+        $filterAuthorDate    = "author-date:>=" . now()->subYear()->startOfYear()->format('Y-m-d');
+        $filterCommitterDate = "committer-date:>=" . now()->subYear()->startOfYear()->format('Y-m-d');
 
-        $stars = 0;
+        $response = $this->api->get("search/commits?q={$filterAuthor}+$filterAuthorDate+{$filterCommitter}+{$filterCommitterDate}");
 
-        foreach ($repositories as $repository) {
-            $stars += $repository->stargazers_count;
+        if ($response->status() === 403 && $response->header('X-RateLimit-Remaining') == 0) {
+            throw new RateLimitedExceededException();
         }
 
-        return $stars;
+        return $response->json()['total_count'] > 0;
     }
 }

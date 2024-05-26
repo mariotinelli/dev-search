@@ -10,7 +10,7 @@ class RoleMiddleware
     public function handle(Request $request, Closure $next, string $roles)
     {
         $roles = explode('|', $roles);
-        
+
         foreach ($roles as $role) {
             if (auth()->user()->hasRole($role)) {
                 return $next($request);

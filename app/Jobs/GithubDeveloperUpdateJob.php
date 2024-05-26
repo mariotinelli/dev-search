@@ -19,8 +19,7 @@ class GithubDeveloperUpdateJob implements ShouldQueue
         private readonly string $username,
         private readonly int    $repos,
         private readonly int    $stars,
-    )
-    {
+    ) {
     }
 
     public function handle(): void
@@ -36,7 +35,7 @@ class GithubDeveloperUpdateJob implements ShouldQueue
         $developer->update([
             'repos' => $repos,
             'stars' => $stars,
-            'score' => $this->calculeDeveloperScore($developer->followers, $stars, $repos)
+            'score' => $this->calculeDeveloperScore($developer->followers, $stars, $repos),
         ]);
     }
 

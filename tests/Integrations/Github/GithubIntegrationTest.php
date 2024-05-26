@@ -31,3 +31,9 @@ it('should be get all repositories from an user', function () {
         ->and($repositories)->not->toBeEmpty()
         ->and($repositories->get(0))->toBeInstanceOf(Repository::class);
 });
+
+it('should be check if the user has activities in the last year', function () {
+    $hasActivities = (new GithubIntegration())->checkIfUserHasActivitiesInTheLastYear('mariotinelli');
+
+    expect($hasActivities)->toBeBool();
+});

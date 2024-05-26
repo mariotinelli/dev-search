@@ -20,8 +20,7 @@ class GithubUserSaveJob implements ShouldQueue
 
     public function __construct(
         public readonly string $username,
-    )
-    {
+    ) {
     }
 
     /**
@@ -37,13 +36,13 @@ class GithubUserSaveJob implements ShouldQueue
             Developer::updateOrCreate(
                 ['login' => $user->login],
                 [
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'location' => $user->location,
-                    'bio' => $user->bio,
+                    'name'       => $user->name,
+                    'email'      => $user->email,
+                    'location'   => $user->location,
+                    'bio'        => $user->bio,
                     'avatar_url' => $user->avatarUrl,
-                    'html_url' => $user->htmlUrl,
-                    'followers' => $user->followers
+                    'html_url'   => $user->htmlUrl,
+                    'followers'  => $user->followers,
                 ]
             );
 
