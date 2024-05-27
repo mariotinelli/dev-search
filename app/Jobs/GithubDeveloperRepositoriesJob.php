@@ -8,7 +8,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
+use Illuminate\Queue\{InteractsWithQueue, MaxAttemptsExceededException, SerializesModels};
 use Illuminate\Support\Collection;
 
 class GithubDeveloperRepositoriesJob implements ShouldQueue
@@ -44,6 +44,8 @@ class GithubDeveloperRepositoriesJob implements ShouldQueue
 
         } catch (RateLimitedExceededException $e) {
             $this->release($e->getRetryAfter());
+        } catch (MaxAttemptsExceededException $e) {
+            $this->release(60);
         }
     }
 

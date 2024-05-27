@@ -60,7 +60,7 @@ class GithubIntegration
         int    $perPage = 100
     ): Collection
     {
-        $defaultExpression = "type:User+location:Brazil+location:Brasil";
+        $defaultExpression = "type:User+location:Brazil+location:Brasil+language:php";
 
         if ($expression) {
             $defaultExpression .= "+{$expression}";
@@ -108,6 +108,21 @@ class GithubIntegration
         $filterCommitterDate = "committer-date:>=" . now()->subYear()->format('Y-m-d');
 
         $response = $this->api->get("search/commits?q={$filterAuthor}+$filterAuthorDate+{$filterCommitter}+{$filterCommitterDate}&per_page=1");
+
+        if ($response->status() === 403 && $response->header('X-RateLimit-Remaining') == 0) {
+            throw new RateLimitedExceededException();
+        }
+
+        return $response->json()['total_count'] > 0;
+    }
+
+    /**
+     * @throws RateLimitedExceededException
+     * @throws ConnectionException
+     */
+    public function checkIfUserHasAtLeast4RepositoriesPhpLanguage(string $username): bool
+    {
+        $response = $this->api->get("/search/repositories?q=language:php+user:{$username}&per_page=1");
 
         if ($response->status() === 403 && $response->header('X-RateLimit-Remaining') == 0) {
             throw new RateLimitedExceededException();

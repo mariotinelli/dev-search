@@ -2,16 +2,15 @@
 
 namespace App\Jobs;
 
-use App\Integrations\Github\Exceptions\{RateLimitedExceededException, UserNotFoundException};
+use App\Integrations\Github\Exceptions\{RateLimitedExceededException};
 use App\Integrations\Github\GithubIntegration;
-use App\Models\Developer;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\{InteractsWithQueue, MaxAttemptsExceededException, SerializesModels};
 
-class GithubDeveloperSaveJob implements ShouldQueue
+class GithubCheckDeveloperHasActivitiesOnLastYearJob implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -26,33 +25,15 @@ class GithubDeveloperSaveJob implements ShouldQueue
 
     /**
      * @throws ConnectionException
-     * @throws UserNotFoundException
      */
     public function handle(): void
     {
         try {
             $hasActivitiesOnLastYear = (new GithubIntegration())->checkIfUserHasActivitiesInTheLastYear($this->username);
 
-            if (!$hasActivitiesOnLastYear) {
-                return;
+            if ($hasActivitiesOnLastYear) {
+                GithubCheckDeveloperHasAtLeast4RepositoriesPhpLanguageJob::dispatch($this->username);
             }
-
-            $user = (new GithubIntegration())->getUser($this->username);
-
-            Developer::updateOrCreate(
-                ['login' => $user->login],
-                [
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'location' => $user->location,
-                    'bio' => $user->bio,
-                    'avatar_url' => $user->avatarUrl,
-                    'html_url' => $user->htmlUrl,
-                    'followers' => $user->followers
-                ]
-            );
-
-            GithubDeveloperRepositoriesJob::dispatch($user->login);
 
         } catch (RateLimitedExceededException $e) {
             $this->release($e->getRetryAfter());

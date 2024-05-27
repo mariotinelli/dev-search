@@ -24,11 +24,19 @@
             {{ $developer->stars }}
         </td >
 
+        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-white" >
+            {{ $developer->repos }}
+        </td >
+
+        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-white" >
+            {{ $developer->score }}
+        </td >
+
         <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-white flex items-center gap-2 @if($loop->last) rounded-br-lg @endif" >
 
             <a
                 title="Ver perfil no GitHub"
-                href="{{ $developer->htmlUrl }}"
+                href="{{ $developer->html_url }}"
                 target="_blank"
                 class="text-sm text-white bg-white-800 p-1.5 rounded-full"
             >

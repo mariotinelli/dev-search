@@ -9,7 +9,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
+use Illuminate\Queue\{InteractsWithQueue, MaxAttemptsExceededException, SerializesModels};
 use Illuminate\Support\Collection;
 
 class GithubDevelopersSyncJob implements ShouldQueue
@@ -26,6 +26,7 @@ class GithubDevelopersSyncJob implements ShouldQueue
         private readonly string  $createdEnd = '2008-01-08',
     )
     {
+        $this->onQueue('developers-sync');
     }
 
     /**
@@ -33,19 +34,21 @@ class GithubDevelopersSyncJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $expression = "language:php+location:Brazil+location:Brasil+type:User+created:{$this->createdStart}..{$this->createdEnd}";
+        $expression = "created:{$this->createdStart}..{$this->createdEnd}";
 
         try {
             $users = (new GithubIntegration())->searchUsers($expression, $this->page);
 
             foreach ($users as $user) {
-                GithubDeveloperSaveJob::dispatch($user->login);
+                GithubCheckDeveloperHasActivitiesOnLastYearJob::dispatch($user->login);
             }
 
             $this->checkToDispatchGithubUsersSyncJob($users);
 
         } catch (RateLimitedExceededException $e) {
             $this->release($e->getRetryAfter());
+        } catch (MaxAttemptsExceededException $e) {
+            $this->release(60);
         }
     }
 

@@ -5,9 +5,9 @@ namespace App\Console\Commands;
 use App\Jobs\GithubDevelopersSyncJob;
 use Illuminate\Console\Command;
 
-class GithubUsersSyncCommand extends Command
+class GithubDevelopersSyncCommand extends Command
 {
-    protected $signature = 'github-users-sync';
+    protected $signature = 'github-developers-sync';
 
     protected $description = 'Sync users from Github API and store in database.';
 
