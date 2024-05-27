@@ -2,31 +2,33 @@
 
 namespace App\Livewire\Developers;
 
-use App\Integrations\Github\GithubIntegration;
-use Illuminate\Pagination\{LengthAwarePaginator, Paginator};
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Request;
+use App\Models\Developer;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\{LengthAwarePaginator};
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use TallStackUi\Traits\Interactions;
 
 class Index extends Component
 {
+    use Interactions;
+
     public ?array $starOptions = null;
 
     public ?array $repositoriesOptions = null;
 
     public ?array $followersOptions = null;
 
-    public ?array $languageOptions = null;
+    public ?array $favoriteOptions = null;
 
-    public ?array $languages = null;
+    public ?int $stars = null;
 
-    public ?string $stars = null;
+    public ?int $repositories = null;
 
-    public ?string $repositories = null;
+    public ?int $followers = null;
 
-    public ?string $followers = null;
+    public ?int $favorites = null;
 
     public function render(): View
     {
@@ -36,65 +38,76 @@ class Index extends Component
 
     public function mount(): void
     {
-        $this->languageOptions = ['php', 'javascript', 'python', 'ruby', 'java', 'c#', 'c++', 'c', 'go', 'typescript', 'shell', 'swift', 'kotlin', 'rust', 'scala', 'r', 'css', 'html', 'vue', 'react', 'angular', 'laravel', 'symfony', 'django', 'flask', 'express', 'spring', 'rails', 'asp.net', 'asp.net core', 'node.js', 'deno', 'next.js', 'nuxt.js', 'gatsby', 'react native', 'flutter', 'ionic', 'cordova', 'xamarin', 'electron', 'nw.js', 'unity', 'unreal', 'godot', 'phaser', 'p5.js', 'three.js', 'babylon.js', 'a-frame', 'jquery', 'bootstrap', 'tailwind', 'bulma', 'materialize', 'semantic ui', 'chakra ui', 'ant design', 'vuetify', 'quasar', 'element', 'primevue', 'primefaces', 'material-ui', 'mui', 'antd', 'tailwindcss', 'bulma', 'bootstrap', 'materialize', 'semantic ui', 'chakra ui', 'ant design', 'vuetify', 'quasar', 'element', 'primevue', 'primefaces', 'material-ui', 'mui', 'antd', 'tailwindcss', 'bulma', 'bootstrap', 'materialize', 'semantic ui', 'chakra ui', 'ant design', 'vuetify', 'quasar', 'element', 'primevue', 'primefaces', 'material-ui', 'mui', 'antd', 'tailwindcss', 'bulma', 'bootstrap', 'materialize', 'semantic ui', 'chakra ui', 'ant design', 'vuetify', 'quasar', 'element', 'primevue', 'primefaces', 'material-ui', 'mui', 'antd', 'tailwindcss', 'bulma', 'bootstrap', 'materialize', 'semantic ui', 'chakra ui', 'ant design', 'vuetify', 'quasar', 'element', 'primevue', 'primefaces', 'material-ui', 'mui', 'antd', 'tailwindcss', 'bulma', 'bootstrap', 'materialize', 'semantic ui', 'chakra ui', 'ant'];
+        $this->favorites = 0;
 
         $this->starOptions = $this->getSelectOptions('estrela');
 
         $this->repositoriesOptions = $this->getSelectOptions('repositório');
 
         $this->followersOptions = $this->getSelectOptions('seguidor', 'seguidores');
+
+        $this->favoriteOptions = [
+            ['label' => 'Todos', 'value' => 0],
+            ['label' => 'Favoritados', 'value' => 1],
+            ['label' => 'Não favoritados', 'value' => 2],
+        ];
     }
 
     #[Computed]
     public function developers(): LengthAwarePaginator
     {
-        //        $users = collect();
-        //
-        //        for ($i = 0; $i < 15; $i++) {
-        //            $users->push(new User(
-        //                login: 'josepholiveira',
-        //                avatarUrl: 'https://avatars.githubusercontent.com/u/3952934?v=4',
-        //                htmlUrl: 'https://avatars.githubusercontent.com/u/3952934?v=4',
-        //                name: 'Joseph Oliveira',
-        //                email: 'email@email.com',
-        //                followers: 100,
-        //                stars: 25
-        //            ));
-        //        }
-        //
-        //        return $this->paginate($users);
+        $developers = Developer::query()
+            ->with(['favoriteBy'])
+            ->when($this->stars, function (Builder $query, int $stars) {
+                return $query->where('stars', '>', $stars);
+            })
+            ->when($this->repositories, function (Builder $query, int $repositories) {
+                return $query->where('repos', '>', $repositories);
+            })
+            ->when($this->followers, function (Builder $query, int $followers) {
+                return $query->where('followers', '>', $followers);
+            })
+            ->when($this->favorites, function (Builder $query, int $favorites) {
+                if ($favorites === 1) {
+                    return $query->whereHas('favoriteBy', function (Builder $query) use ($favorites) {
+                        return $query->where('user_id', auth()->id());
+                    });
+                } else if ($favorites === 2) {
+                    return $query->doesntHave('favoriteBy', function (Builder $query) use ($favorites) {
+                        return $query->where('user_id', auth()->id());
+                    });
+                }
 
-        if (!$this->stars || !$this->repositories || !$this->followers || !$this->languages) {
-            return $this->paginate(collect());
-        }
+                return $query;
+            })
+            ->orderByDesc('score')
+            ->paginate(10);
 
-        $expression = "followers:{$this->followers}+repos:{$this->repositories}";
+        return tap($developers, function (LengthAwarePaginator $developers) {
+            $developers->getCollection()->transform(function (Developer $developer) {
+                $developer->is_favorite = $developer->favoriteBy->contains('user_id', auth()->id());
 
-        foreach ($this->languages as $language) {
-            $expression .= "+language:{$language}";
-        }
-
-        $users = (new GithubIntegration())->searchUsers($expression);
-
-        return $this->paginate($users);
+                return $developer;
+            });
+        });
     }
 
-    public function paginate(Collection $users, int $perPage = null, int $page = null): LengthAwarePaginator
+    public function favoriteDeveloper(int $id): void
     {
-        $page = $page ?? (Paginator::resolveCurrentPage() ?: 1);
+        auth()->user()->favoriteDevelopers()->create(['developer_id' => $id]);
 
-        $items = Collection::make($users);
+        $this->toast()
+            ->success('Desenvolvedor favoritado com sucesso')
+            ->send();
+    }
 
-        return new LengthAwarePaginator(
-            items: $items->forPage($page, $perPage ?? 10),
-            total: $items->count(),
-            perPage: $perPage ?? 10,
-            currentPage: $page,
-            options: [
-                'path'  => Request::url(),
-                'query' => Request::query(),
-            ]
-        );
+    public function unfavoriteDeveloper(int $id): void
+    {
+        auth()->user()->favoriteDevelopers()->where('developer_id', $id)->delete();
+
+        $this->toast()
+            ->success('Desenvolvedor removido dos favoritos com sucesso')
+            ->send();
     }
 
     public function getSelectOptions(string $singularName, string $pluralName = null): array
@@ -102,34 +115,13 @@ class Index extends Component
         $pluralName = $pluralName ?? $singularName . 's';
 
         return [
-            [
-                'label' => "Mais de 1 {$singularName}",
-                'value' => '>1',
-            ],
-            [
-                'label' => "Mais de 10 {$pluralName}",
-                'value' => '>10',
-            ],
-            [
-                'label' => "Mais de 25 {$pluralName}",
-                'value' => '>25',
-            ],
-            [
-                'label' => "Mais de 50 {$pluralName}",
-                'value' => '>50',
-            ],
-            [
-                'label' => "Mais de 100 {$pluralName}",
-                'value' => '>100',
-            ],
-            [
-                'label' => "Mais de 500 {$pluralName}",
-                'value' => '>500',
-            ],
-            [
-                'label' => "Mais de 1000 {$pluralName}",
-                'value' => '>1000',
-            ],
+            ['label' => "Mais de 1 {$singularName}", 'value' => 1],
+            ['label' => "Mais de 10 {$pluralName}", 'value' => 10],
+            ['label' => "Mais de 25 {$pluralName}", 'value' => 25],
+            ['label' => "Mais de 50 {$pluralName}", 'value' => 50],
+            ['label' => "Mais de 100 {$pluralName}", 'value' => 100],
+            ['label' => "Mais de 500 {$pluralName}", 'value' => 500],
+            ['label' => "Mais de 1000 {$pluralName}", 'value' => 1000],
         ];
     }
 }

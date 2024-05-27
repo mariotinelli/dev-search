@@ -21,20 +21,17 @@
                     {{ __('Filtros') }}
                 </h3 >
 
-                <div class="py-2 flex items-center gap-3 z-100" >
+                <div class="py-2 grid grid-cols-4 gap-3 z-100" >
 
-                    <x-ts-select.styled
-                        label="Linguagem *"
-                        placeholder="Selecione a linguagem de programação"
-                        wire:model.live="languages"
+                    <x-ts-select.native
+                        label="Favoritos"
+                        wire:model.live="favorites"
                         select="label:label|value:value"
-                        searchable
-                        multiple
-                        :options="$languageOptions"
+                        :options="$favoriteOptions"
                     />
 
                     <x-ts-select.styled
-                        label="Estrelas *"
+                        label="Estrelas"
                         placeholder="Selecione a quantidade de estrelas"
                         wire:model.live="stars"
                         select="label:label|value:value"
@@ -42,7 +39,7 @@
                     />
 
                     <x-ts-select.styled
-                        label="Repositórios *"
+                        label="Repositórios"
                         placeholder="Selecione a quantidade de repositórios"
                         wire:model.live="repositories"
                         select="label:label|value:value"
@@ -50,7 +47,7 @@
                     />
 
                     <x-ts-select.styled
-                        label="Seguidores *"
+                        label="Seguidores"
                         placeholder="Selecione a quantidade de seguidores"
                         wire:model.live="followers"
                         select="label:label|value:value"

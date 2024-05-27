@@ -10,6 +10,7 @@
     "require": {
         "php": "^8.2",
         "laravel/framework": "^11.0",
+        "laravel/horizon": "^5.24",
         "laravel/tinker": "^2.9",
         "laravellegends/pt-br-validator": "^11.0",
         "livewire/livewire": "^3.5",
@@ -38,8 +39,7 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/Helpers/cpf.php",
-            "app/Helpers/routes.php"
+            "app/Helpers/cpf.php"
         ]
     },
     "autoload-dev": {

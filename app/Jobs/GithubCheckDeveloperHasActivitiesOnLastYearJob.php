@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Integrations\Github\Exceptions\RateLimitedExceededException;
+use App\Integrations\Github\Exceptions\{RateLimitedExceededException};
 use App\Integrations\Github\GithubIntegration;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,7 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 
-class GithubUserStarsUpdateJob implements ShouldQueue
+class GithubCheckDeveloperHasActivitiesOnLastYearJob implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -18,8 +18,9 @@ class GithubUserStarsUpdateJob implements ShouldQueue
     use SerializesModels;
 
     public function __construct(
-        private readonly string $username
-    ) {
+        public readonly string $username,
+    )
+    {
     }
 
     /**
@@ -28,18 +29,19 @@ class GithubUserStarsUpdateJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            $repositories = (new GithubIntegration())->getAllUserRepositories($this->username);
+            $hasActivitiesOnLastYear = (new GithubIntegration())->checkIfUserHasActivitiesInTheLastYear($this->username);
 
-            $stars = 0;
-
-            foreach ($repositories as $repository) {
-                $stars += $repository->stargazers_count;
+            if ($hasActivitiesOnLastYear) {
+                GithubCheckDeveloperHasAtLeast4RepositoriesPhpLanguageJob::dispatch($this->username);
             }
-
-            // TODO: Update user stars in database
 
         } catch (RateLimitedExceededException $e) {
             $this->release($e->getRetryAfter());
         }
+    }
+
+    public function tries(): int
+    {
+        return 5;
     }
 }

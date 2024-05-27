@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Integrations\Github\Exceptions\{RateLimitedExceededException, UserNotFoundException};
+use App\Integrations\Github\Exceptions\{RateLimitedExceededException};
 use App\Integrations\Github\GithubIntegration;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,7 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 
-class GithubUserSaveJob implements ShouldQueue
+class GithubCheckDeveloperHasAtLeast4RepositoriesPhpLanguageJob implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -19,25 +19,29 @@ class GithubUserSaveJob implements ShouldQueue
 
     public function __construct(
         public readonly string $username,
-    ) {
+    )
+    {
     }
 
     /**
      * @throws ConnectionException
-     * @throws UserNotFoundException
      */
     public function handle(): void
     {
         try {
+            $hasAtLeast4RepositoriesPhpLanguage = (new GithubIntegration())->checkIfUserHasAtLeast4RepositoriesPhpLanguage($this->username);
 
-            $user = (new GithubIntegration())->getUser($this->username);
-
-            // TODO: Save user to database
-
-            GithubUserStarsUpdateJob::dispatch($user->login);
+            if ($hasAtLeast4RepositoriesPhpLanguage) {
+                GithubDeveloperSaveJob::dispatch($this->username);
+            }
 
         } catch (RateLimitedExceededException $e) {
             $this->release($e->getRetryAfter());
         }
+    }
+
+    public function tries(): int
+    {
+        return 5;
     }
 }

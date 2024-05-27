@@ -14,7 +14,8 @@ readonly class User
         public ?string $location = null,
         public ?int    $followers = null,
         public ?int    $stars = null,
-    ) {
+    )
+    {
     }
 
     public static function createFromApi(array $data): self

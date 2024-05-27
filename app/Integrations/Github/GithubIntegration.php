@@ -3,10 +3,12 @@
 namespace App\Integrations\Github;
 
 use App\Integrations\Github\Entities\{Repository, User};
-use App\Integrations\Github\Exceptions\{AccessTokenNotFoundException, RateLimitedExceededException, UserNotFoundException};
+use App\Integrations\Github\Exceptions\{AccessTokenNotFoundException,
+    RateLimitedExceededException,
+    UserNotFoundException};
 use Illuminate\Http\Client\{ConnectionException, PendingRequest};
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\{Http, Log};
 
 class GithubIntegration
 {
@@ -23,7 +25,7 @@ class GithubIntegration
 
         $this->api = Http::baseUrl('https://api.github.com/')
             ->withHeaders([
-                'Accept'        => 'application/vnd.github.v3+json',
+                'Accept' => 'application/vnd.github.v3+json',
                 'Authorization' => 'Bearer ' . config('services.github.token'),
             ]);
     }
@@ -42,7 +44,7 @@ class GithubIntegration
         }
 
         if ($response->status() === 403 && $response->header('X-RateLimit-Remaining') == 0) {
-            throw new RateLimitedExceededException(retryAfter: $response->header('Retry-After'));
+            throw new RateLimitedExceededException();
         }
 
         return User::createFromApi($response->json());
@@ -56,8 +58,9 @@ class GithubIntegration
         string $expression = null,
         int    $page = 1,
         int    $perPage = 100
-    ): Collection {
-        $defaultExpression = "type:User+location:Brazil+location:Brasil";
+    ): Collection
+    {
+        $defaultExpression = "type:User+location:Brazil+location:Brasil+language:php";
 
         if ($expression) {
             $defaultExpression .= "+{$expression}";
@@ -69,8 +72,12 @@ class GithubIntegration
             throw new RateLimitedExceededException();
         }
 
+        if ($response->json()['total_count'] > 1000) {
+            Log::info('The search returned more than 1000 results');
+        }
+
         return collect($response->json()['items'])
-            ->map(fn ($user) => User::createFromApi($user));
+            ->map(fn($user) => User::createFromApi($user));
     }
 
     /**
@@ -81,28 +88,46 @@ class GithubIntegration
     {
         $response = $this->api->get("users/{$username}/repos");
 
-        if ($response->status() === 403 && $response->header('X-RateLimit-Remaining') === 0) {
+        if ($response->status() === 403 && $response->header('X-RateLimit-Remaining') == 0) {
             throw new RateLimitedExceededException();
         }
 
         return collect($response->json())
-            ->map(fn ($repository) => Repository::createFromApi($repository));
+            ->map(fn($repository) => Repository::createFromApi($repository));
     }
 
     /**
-     * @throws ConnectionException
      * @throws RateLimitedExceededException
+     * @throws ConnectionException
      */
-    public function getUserStars(User $user): int
+    public function checkIfUserHasActivitiesInTheLastYear(string $username): bool
     {
-        $repositories = $this->getAllUserRepositories($user->login);
+        $filterAuthor = "author:{$username}";
+        $filterCommitter = "committer:{$username}";
+        $filterAuthorDate = "author-date:>=" . now()->subYear()->format('Y-m-d');
+        $filterCommitterDate = "committer-date:>=" . now()->subYear()->format('Y-m-d');
 
-        $stars = 0;
+        $response = $this->api->get("search/commits?q={$filterAuthor}+$filterAuthorDate+{$filterCommitter}+{$filterCommitterDate}&per_page=1");
 
-        foreach ($repositories as $repository) {
-            $stars += $repository->stargazers_count;
+        if ($response->status() === 403 && $response->header('X-RateLimit-Remaining') == 0) {
+            throw new RateLimitedExceededException();
         }
 
-        return $stars;
+        return $response->json()['total_count'] > 0;
+    }
+
+    /**
+     * @throws RateLimitedExceededException
+     * @throws ConnectionException
+     */
+    public function checkIfUserHasAtLeast4RepositoriesPhpLanguage(string $username): bool
+    {
+        $response = $this->api->get("/search/repositories?q=language:php+user:{$username}&per_page=1");
+
+        if ($response->status() === 403 && $response->header('X-RateLimit-Remaining') == 0) {
+            throw new RateLimitedExceededException();
+        }
+
+        return $response->json()['total_count'] > 0;
     }
 }
