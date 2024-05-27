@@ -20,11 +20,15 @@ class Index extends Component
 
     public ?array $followersOptions = null;
 
+    public ?array $favoriteOptions = null;
+
     public ?int $stars = null;
 
     public ?int $repositories = null;
 
     public ?int $followers = null;
+
+    public ?int $favorites = null;
 
     public function render(): View
     {
@@ -34,11 +38,58 @@ class Index extends Component
 
     public function mount(): void
     {
+        $this->favorites = 0;
+
         $this->starOptions = $this->getSelectOptions('estrela');
 
         $this->repositoriesOptions = $this->getSelectOptions('repositório');
 
         $this->followersOptions = $this->getSelectOptions('seguidor', 'seguidores');
+
+        $this->favoriteOptions = [
+            ['label' => 'Todos', 'value' => 0],
+            ['label' => 'Favoritados', 'value' => 1],
+            ['label' => 'Não favoritados', 'value' => 2],
+        ];
+    }
+
+    #[Computed]
+    public function developers(): LengthAwarePaginator
+    {
+        $developers = Developer::query()
+            ->with(['favoriteBy'])
+            ->when($this->stars, function (Builder $query, int $stars) {
+                return $query->where('stars', '>', $stars);
+            })
+            ->when($this->repositories, function (Builder $query, int $repositories) {
+                return $query->where('repos', '>', $repositories);
+            })
+            ->when($this->followers, function (Builder $query, int $followers) {
+                return $query->where('followers', '>', $followers);
+            })
+            ->when($this->favorites, function (Builder $query, int $favorites) {
+                if ($favorites === 1) {
+                    return $query->whereHas('favoriteBy', function (Builder $query) use ($favorites) {
+                        return $query->where('user_id', auth()->id());
+                    });
+                } else if ($favorites === 2) {
+                    return $query->doesntHave('favoriteBy', function (Builder $query) use ($favorites) {
+                        return $query->where('user_id', auth()->id());
+                    });
+                }
+
+                return $query;
+            })
+            ->orderByDesc('score')
+            ->paginate(10);
+
+        return tap($developers, function (LengthAwarePaginator $developers) {
+            $developers->getCollection()->transform(function (Developer $developer) {
+                $developer->is_favorite = $developer->favoriteBy->contains('user_id', auth()->id());
+
+                return $developer;
+            });
+        });
     }
 
     public function favoriteDeveloper(int $id): void
@@ -57,29 +108,6 @@ class Index extends Component
         $this->toast()
             ->success('Desenvolvedor removido dos favoritos com sucesso')
             ->send();
-    }
-
-    #[Computed]
-    public function developers(): LengthAwarePaginator
-    {
-        return Developer::query()
-            ->when($this->stars, function (Builder $query, int $stars) {
-                return $query->where('stars', '>', $stars);
-            })
-            ->when($this->repositories, function (Builder $query, int $repositories) {
-                return $query->where('repos', '>', $repositories);
-            })
-            ->when($this->followers, function (Builder $query, int $followers) {
-                return $query->where('followers', '>', $followers);
-            })
-//            ->(function (Developer $developer) {
-//                return [
-//                    ...$developer->toArray(),
-//                    'is_favorite' => $developer->favoriteBy()->where('user_id', auth()->id())->exists(),
-//                ];
-//            }, 100)
-            ->orderByDesc('score')
-            ->paginate(10);
     }
 
     public function getSelectOptions(string $singularName, string $pluralName = null): array

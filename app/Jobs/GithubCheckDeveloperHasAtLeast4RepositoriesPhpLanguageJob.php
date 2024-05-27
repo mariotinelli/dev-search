@@ -8,7 +8,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Queue\{InteractsWithQueue, MaxAttemptsExceededException, SerializesModels};
+use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 
 class GithubCheckDeveloperHasAtLeast4RepositoriesPhpLanguageJob implements ShouldQueue
 {
@@ -37,8 +37,6 @@ class GithubCheckDeveloperHasAtLeast4RepositoriesPhpLanguageJob implements Shoul
 
         } catch (RateLimitedExceededException $e) {
             $this->release($e->getRetryAfter());
-        } catch (MaxAttemptsExceededException $e) {
-            $this->release(60);
         }
     }
 

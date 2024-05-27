@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -21,11 +22,11 @@ class Developer extends Model
         'score',
     ];
 
-    protected $appends = ['is_favorite'];
-
-    public function getIsFavoriteAttribute(): bool
+    public function email(): Attribute
     {
-        return auth()->check() && $this->favoriteBy()->where('user_id', auth()->id())->exists();
+        return Attribute::make(
+            get: fn($value) => $value ?? 'E-mail não informado',
+        );
     }
 
     public function favoriteBy(): HasMany
