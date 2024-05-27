@@ -22,7 +22,8 @@ class GithubDeveloperRepositoriesJob implements ShouldQueue
         private readonly string $username,
         private readonly int    $page = 1,
         private readonly int    $perPage = 100,
-    ) {
+    )
+    {
     }
 
     /**
@@ -55,5 +56,10 @@ class GithubDeveloperRepositoriesJob implements ShouldQueue
         }
 
         return $stars;
+    }
+
+    public function tries(): int
+    {
+        return 5;
     }
 }

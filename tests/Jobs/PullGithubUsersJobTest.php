@@ -13,6 +13,6 @@ todo('should be get all users and dispatch PullGithubUserJob for each user', fun
     $pullGithubUserJob->shouldReceive('dispatch')->with('mariotinelli');
     $pullGithubUserJob->shouldReceive('dispatch')->with('laravel');
 
-    (new \App\Jobs\GithubUsersSyncJob())->handle();
+    (new \App\Jobs\GithubDevelopersSyncJob())->handle();
 
 });

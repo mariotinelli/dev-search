@@ -11,7 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 
-class GithubUserSaveJob implements ShouldQueue
+class GithubDeveloperSaveJob implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -20,7 +20,8 @@ class GithubUserSaveJob implements ShouldQueue
 
     public function __construct(
         public readonly string $username,
-    ) {
+    )
+    {
     }
 
     /**
@@ -30,19 +31,24 @@ class GithubUserSaveJob implements ShouldQueue
     public function handle(): void
     {
         try {
+            $hasActivitiesOnLastYear = (new GithubIntegration())->checkIfUserHasActivitiesInTheLastYear($this->username);
+
+            if (!$hasActivitiesOnLastYear) {
+                return;
+            }
 
             $user = (new GithubIntegration())->getUser($this->username);
 
             Developer::updateOrCreate(
                 ['login' => $user->login],
                 [
-                    'name'       => $user->name,
-                    'email'      => $user->email,
-                    'location'   => $user->location,
-                    'bio'        => $user->bio,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'location' => $user->location,
+                    'bio' => $user->bio,
                     'avatar_url' => $user->avatarUrl,
-                    'html_url'   => $user->htmlUrl,
-                    'followers'  => $user->followers,
+                    'html_url' => $user->htmlUrl,
+                    'followers' => $user->followers
                 ]
             );
 
@@ -51,5 +57,10 @@ class GithubUserSaveJob implements ShouldQueue
         } catch (RateLimitedExceededException $e) {
             $this->release($e->getRetryAfter());
         }
+    }
+
+    public function tries(): int
+    {
+        return 5;
     }
 }

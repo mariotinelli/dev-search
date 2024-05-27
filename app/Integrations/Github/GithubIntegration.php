@@ -104,8 +104,8 @@ class GithubIntegration
     {
         $filterAuthor = "author:{$username}";
         $filterCommitter = "committer:{$username}";
-        $filterAuthorDate = "author-date:>=" . now()->subYear()->startOfYear()->format('Y-m-d');
-        $filterCommitterDate = "committer-date:>=" . now()->subYear()->startOfYear()->format('Y-m-d');
+        $filterAuthorDate = "author-date:>=" . now()->subYear()->format('Y-m-d');
+        $filterCommitterDate = "committer-date:>=" . now()->subYear()->format('Y-m-d');
 
         $response = $this->api->get("search/commits?q={$filterAuthor}+$filterAuthorDate+{$filterCommitter}+{$filterCommitterDate}&per_page=1");
 

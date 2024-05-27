@@ -13,6 +13,6 @@ todo('should be get all user repositories and update the user stars', function (
     $pullGithubUserJob->shouldReceive('dispatch')->with('mariotinelli');
     $pullGithubUserJob->shouldReceive('dispatch')->with('laravel');
 
-    (new \App\Jobs\GithubUsersSyncJob())->handle();
+    (new \App\Jobs\GithubDevelopersSyncJob())->handle();
 
 });

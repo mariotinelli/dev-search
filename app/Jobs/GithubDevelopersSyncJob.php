@@ -12,7 +12,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 use Illuminate\Support\Collection;
 
-class GithubUsersSyncJob implements ShouldQueue
+class GithubDevelopersSyncJob implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -20,10 +20,10 @@ class GithubUsersSyncJob implements ShouldQueue
     use SerializesModels;
 
     public function __construct(
-        private readonly int    $page = 1,
-        private readonly string $locationExpr = 'location:Brazil+location:Brasil',
-        private readonly string $createdStart = '2008-01-01',
-        private readonly string $createdEnd = '2008-01-08',
+        private readonly int     $page = 1,
+        private readonly ?string $locationExpr = null,
+        private readonly string  $createdStart = '2008-01-01',
+        private readonly string  $createdEnd = '2008-01-08',
     )
     {
     }
@@ -33,12 +33,14 @@ class GithubUsersSyncJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $expression = "{$this->locationExpr}+type:User+created:{$this->createdStart}..{$this->createdEnd}";
+        $expression = "language:php+location:Brazil+location:Brasil+type:User+created:{$this->createdStart}..{$this->createdEnd}";
 
         try {
             $users = (new GithubIntegration())->searchUsers($expression, $this->page);
 
-            $this->dispatchGithubUserSaveJob($users);
+            foreach ($users as $user) {
+                GithubDeveloperSaveJob::dispatch($user->login);
+            }
 
             $this->checkToDispatchGithubUsersSyncJob($users);
 
@@ -47,25 +49,10 @@ class GithubUsersSyncJob implements ShouldQueue
         }
     }
 
-    /**
-     * @throws RateLimitedExceededException
-     * @throws ConnectionException
-     */
-    private function dispatchGithubUserSaveJob(Collection $users): void
-    {
-        foreach ($users as $user) {
-            $hasActivitiesOnLastYear = (new GithubIntegration())->checkIfUserHasActivitiesInTheLastYear($user->login);
-
-            if ($hasActivitiesOnLastYear) {
-                GithubUserSaveJob::dispatch($user->login);
-            }
-        }
-    }
-
     private function checkToDispatchGithubUsersSyncJob(Collection $users): void
     {
         if (sizeof($users) > 99) {
-            GithubUsersSyncJob::dispatch($this->page + 1);
+            GithubDevelopersSyncJob::dispatch($this->page + 1);
 
             return;
         }
@@ -74,7 +61,12 @@ class GithubUsersSyncJob implements ShouldQueue
         $newCreatedEnd = Carbon::parse($newCreatedStart)->addWeek()->format('Y-m-d');
 
         if ($newCreatedStart < Carbon::now()->format('Y-m-d')) {
-            GithubUsersSyncJob::dispatch(createdStart: $newCreatedStart, createdEnd: $newCreatedEnd);
+            GithubDevelopersSyncJob::dispatch(createdStart: $newCreatedStart, createdEnd: $newCreatedEnd);
         }
+    }
+
+    public function tries(): int
+    {
+        return 5;
     }
 }

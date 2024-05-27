@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\GithubUsersSyncJob;
+use App\Jobs\GithubDevelopersSyncJob;
 use Illuminate\Console\Command;
 
 class GithubUsersSyncCommand extends Command
@@ -13,6 +13,6 @@ class GithubUsersSyncCommand extends Command
 
     public function handle(): void
     {
-        GithubUsersSyncJob::dispatch();
+        GithubDevelopersSyncJob::dispatch();
     }
 }
