@@ -21,17 +21,7 @@
                     {{ __('Filtros') }}
                 </h3 >
 
-                <div class="py-2 flex items-center gap-3 z-100" >
-
-                    <x-ts-select.styled
-                        label="Linguagem *"
-                        placeholder="Selecione a linguagem de programação"
-                        wire:model.live="languages"
-                        select="label:label|value:value"
-                        searchable
-                        multiple
-                        :options="$languageOptions"
-                    />
+                <div class="py-2 grid grid-cols-3 gap-3 z-100" >
 
                     <x-ts-select.styled
                         label="Estrelas *"

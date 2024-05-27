@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Developer extends Model
 {
@@ -19,4 +20,16 @@ class Developer extends Model
         'stars',
         'score',
     ];
+
+    protected $appends = ['is_favorite'];
+
+    public function getIsFavoriteAttribute(): bool
+    {
+        return auth()->check() && $this->favoriteBy()->where('user_id', auth()->id())->exists();
+    }
+
+    public function favoriteBy(): HasMany
+    {
+        return $this->hasMany(FavoriteDeveloper::class);
+    }
 }

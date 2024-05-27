@@ -43,13 +43,23 @@
                 <x-icons.github />
             </a >
 
-            <button
-                title="Favoritar"
-                wire:click="favorite({{ $developer->login }})"
-                class="text-sm text-white bg-red-800 p-1.5 rounded-full"
-            >
-                <x-icons.heart class="w-3.5 h-3.5" />
-            </button >
+            @if($developer->is_favorite)
+                <button
+                    title="Favoritar"
+                    wire:click="unfavoriteDeveloper({{ $developer->id }})"
+                    class="text-sm text-white bg-red-800 p-1.5 rounded-full"
+                >
+                    <x-icons.x-mark class="w-3.5 h-3.5" />
+                </button >
+            @else
+                <button
+                    title="Favoritar"
+                    wire:click="favoriteDeveloper({{ $developer->id }})"
+                    class="text-sm text-white bg-red-800 p-1.5 rounded-full"
+                >
+                    <x-icons.heart class="w-3.5 h-3.5" />
+                </button >
+            @endif
 
         </td >
     </tr >

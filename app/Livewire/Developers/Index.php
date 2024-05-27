@@ -8,18 +8,17 @@ use Illuminate\Pagination\{LengthAwarePaginator};
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use TallStackUi\Traits\Interactions;
 
 class Index extends Component
 {
+    use Interactions;
+
     public ?array $starOptions = null;
 
     public ?array $repositoriesOptions = null;
 
     public ?array $followersOptions = null;
-
-    public ?array $languageOptions = null;
-
-    public ?array $languages = null;
 
     public ?int $stars = null;
 
@@ -42,10 +41,23 @@ class Index extends Component
         $this->followersOptions = $this->getSelectOptions('seguidor', 'seguidores');
     }
 
-//    public function favoriteDeveloper(int $id): void
-//    {
-//        auth()->user()->favoriteDevelopers()->toggle($id);
-//    }
+    public function favoriteDeveloper(int $id): void
+    {
+        auth()->user()->favoriteDevelopers()->create(['developer_id' => $id]);
+
+        $this->toast()
+            ->success('Desenvolvedor favoritado com sucesso')
+            ->send();
+    }
+
+    public function unfavoriteDeveloper(int $id): void
+    {
+        auth()->user()->favoriteDevelopers()->where('developer_id', $id)->delete();
+
+        $this->toast()
+            ->success('Desenvolvedor removido dos favoritos com sucesso')
+            ->send();
+    }
 
     #[Computed]
     public function developers(): LengthAwarePaginator
@@ -60,7 +72,13 @@ class Index extends Component
             ->when($this->followers, function (Builder $query, int $followers) {
                 return $query->where('followers', '>', $followers);
             })
-            ->orderBy('score', 'desc')
+//            ->(function (Developer $developer) {
+//                return [
+//                    ...$developer->toArray(),
+//                    'is_favorite' => $developer->favoriteBy()->where('user_id', auth()->id())->exists(),
+//                ];
+//            }, 100)
+            ->orderByDesc('score')
             ->paginate(10);
     }
 

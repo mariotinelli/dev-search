@@ -5,7 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\RoleEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasOne};
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany, HasOne};
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -34,8 +34,8 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password'          => 'hashed',
-            'role_id'           => RoleEnum::class,
+            'password' => 'hashed',
+            'role_id' => RoleEnum::class,
         ];
     }
 
@@ -72,5 +72,10 @@ class User extends Authenticatable
     public function assistant(): HasOne
     {
         return $this->hasOne(Assistant::class);
+    }
+
+    public function favoriteDevelopers(): HasMany
+    {
+        return $this->hasMany(FavoriteDeveloper::class);
     }
 }
