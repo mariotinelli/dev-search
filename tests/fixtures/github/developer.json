@@ -1,0 +1,27 @@
+{
+    "login": "github-test",
+    "name": "GitHub Test",
+    "email": "githubtest@email.com",
+    "avatarUrl": "https://avatars.githubusercontent.com/u/1?v=4",
+    "url": "https://github.com/github-test",
+    "bio": "GitHub Test",
+    "location": "GitHub Test",
+    "followers": {
+        "totalCount": 10
+    },
+    "repositories": {
+        "totalCount": 10,
+        "nodes": [
+            {
+                "name": "github-test",
+                "stargazerCount": 10,
+                "primaryLanguage": {
+                    "name": "PHP"
+                }
+            }
+        ]
+    },
+    "repositoriesContributedTo": {
+        "totalCount": 10
+    }
+}

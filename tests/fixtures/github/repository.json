@@ -1,4 +1,6 @@
 {
-    "stargazers_count": 50,
-    "language": "PHP"
+    "stargazerCount": 50,
+    "primaryLanguage": {
+        "name": "PHP"
+    }
 }

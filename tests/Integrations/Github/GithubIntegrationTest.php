@@ -1,39 +1,19 @@
 <?php
 
-use App\Integrations\Github\Entities\{Repository, User};
-use App\Integrations\Github\Exceptions\UserNotFoundException;
 use App\Integrations\Github\GithubIntegration;
-use Illuminate\Support\Collection;
 
-it('should be get all users from search endpoint', function () {
-    $expression = 'location:Brazil+location:Brazil';
-    $users      = (new GithubIntegration())->searchUsers($expression);
+it('should be get all users from search with graphql', function () {
+    $response = (new GithubIntegration())->searchUsers("2024-01-01..2024-01-25");
 
-    expect($users)->toBeInstanceOf(Collection::class)
-        ->and($users)->not->toBeEmpty()
-        ->and($users->get(0))->toBeInstanceOf(User::class);
+    expect($response['data']['search']['userCount'])
+        ->toBeGreaterThan(0);
 });
 
-it('should get an user by a username', function () {
-    $user = (new GithubIntegration())->getUser('mariotinelli');
+it('should be get all commits on the last year by username with graphql', function () {
+    $response = (new GithubIntegration())->getAllUserCommitsOnTheLastYear('mariotinelli');
 
-    expect($user)->toBeInstanceOf(User::class);
-});
-
-it('should throw an exception if user does not exist', function () {
-    (new GithubIntegration())->getUser('n0n-3x1st1ng-user');
-})->throws(UserNotFoundException::class, 'Usuário não encontrado.');
-
-it('should be get all repositories from an user', function () {
-    $repositories = (new GithubIntegration())->getAllUserRepositories('mariotinelli');
-
-    expect($repositories)->toBeInstanceOf(Collection::class)
-        ->and($repositories)->not->toBeEmpty()
-        ->and($repositories->get(0))->toBeInstanceOf(Repository::class);
-});
-
-it('should be check if the user has activities in the last year', function () {
-    $hasActivities = (new GithubIntegration())->checkIfUserHasActivitiesInTheLastYear('mariotinelli');
-
-    expect($hasActivities)->toBeBool();
+    expect($response['data']['user']['login'])
+        ->toBe('mariotinelli')
+        ->and($response['data']['user']['repositories']['totalCount'])
+        ->toBeGreaterThan(0);
 });
