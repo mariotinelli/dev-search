@@ -2,12 +2,8 @@
 
 namespace App\Integrations\Github;
 
-use App\Integrations\Github\Entities\{Repository, User};
-use App\Integrations\Github\Exceptions\{AccessTokenNotFoundException,
-    RateLimitedExceededException,
-    UserNotFoundException};
+use App\Integrations\Github\Exceptions\{AccessTokenNotFoundException, ErrorException, RateLimitedExceededException};
 use Illuminate\Http\Client\{ConnectionException, PendingRequest};
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\{Http, Log};
 
 class GithubIntegration
@@ -31,103 +27,170 @@ class GithubIntegration
     }
 
     /**
-     * @throws UserNotFoundException
      * @throws ConnectionException
      * @throws RateLimitedExceededException
+     * @throws ErrorException
      */
-    public function getUser(string $username): User
+    public function searchUsers(string $created, string $after = null): array
     {
-        $response = $this->api->get("users/{$username}");
+        $response = $this->api->post('graphql', [
+            'query' => $this->mountQueryForSearchUsers(),
+            'variables' => [
+                'after' => $after,
+                'query' => "location:Brazil location:Brasil language:php language:blade language:laravel created:$created",
+            ]
+        ]);
 
-        if ($response->status() === 404) {
-            throw new UserNotFoundException();
-        }
-
-        if ($response->status() === 403 && $response->header('X-RateLimit-Remaining') == 0) {
+        if ($response->status() === 403 && ($response->header('X-RateLimit-Remaining') == 0 || $response->header('Retry-After') !== null)) {
             throw new RateLimitedExceededException();
         }
 
-        return User::createFromApi($response->json());
-    }
-
-    /**
-     * @throws ConnectionException
-     * @throws RateLimitedExceededException
-     */
-    public function searchUsers(
-        string $expression = null,
-        int    $page = 1,
-        int    $perPage = 100
-    ): Collection
-    {
-        $defaultExpression = "type:User+location:Brazil+location:Brasil+language:php";
-
-        if ($expression) {
-            $defaultExpression .= "+{$expression}";
+        if ($response->status() === 502) {
+            throw new ErrorException(errors: $response->json()['errors'], response: $response->json());
         }
 
-        $response = $this->api->get("search/users?q={$defaultExpression}&page={$page}&per_page={$perPage}");
-
-        if ($response->status() === 403 && $response->header('X-RateLimit-Remaining') == 0) {
-            throw new RateLimitedExceededException();
+        if ($response->status() === 200 && !isset($response->json()['data'])) {
+            throw new ErrorException(response: $response->json());
         }
 
-        if ($response->json()['total_count'] > 1000) {
-            Log::info('The search returned more than 1000 results');
-        }
+        $responseSearch = $response->json()['data']['search'];
 
-        return collect($response->json()['items'])
-            ->map(fn($user) => User::createFromApi($user));
-    }
+        if ($responseSearch['userCount'] > 1000) Log::info('Alert ## The search returned more than 1000 results');
 
-    /**
-     * @throws ConnectionException
-     * @throws RateLimitedExceededException
-     */
-    public function getAllUserRepositories(string $username): Collection
-    {
-        $response = $this->api->get("users/{$username}/repos");
+        return $response->json();
 
-        if ($response->status() === 403 && $response->header('X-RateLimit-Remaining') == 0) {
-            throw new RateLimitedExceededException();
-        }
-
-        return collect($response->json())
-            ->map(fn($repository) => Repository::createFromApi($repository));
+//        $users = collect();
+//        foreach ($responseSearch['edges'] as $user) {
+//            if (!empty($user['node']) && !is_null($user['node']['name'])) {
+//                $users->push(User::createFromGraphQL($user['node']));
+//            }
+//        }
+//
+//        return collect([
+//            'users' => $users,
+//            'pageInfo' => $responseSearch['pageInfo'],
+//        ]);
     }
 
     /**
      * @throws RateLimitedExceededException
      * @throws ConnectionException
+     * @throws ErrorException
      */
-    public function checkIfUserHasActivitiesInTheLastYear(string $username): bool
+    public function getAllUserCommitsOnTheLastYear(string $username): array
     {
-        $filterAuthor = "author:{$username}";
-        $filterCommitter = "committer:{$username}";
-        $filterAuthorDate = "author-date:>=" . now()->subYear()->format('Y-m-d');
-        $filterCommitterDate = "committer-date:>=" . now()->subYear()->format('Y-m-d');
+        $query = <<<GRAPHQL
+            query(\$login: String!, \$since: GitTimestamp!) {
+                user(login: \$login) {
+                    login
+                    repositories(first: 100) {
+                        totalCount
+                        nodes {
+                            name
+                            defaultBranchRef {
+                                target {
+                                    ... on Commit {
+                                        history(since: \$since) {
+                                            totalCount
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        GRAPHQL;
 
-        $response = $this->api->get("search/commits?q={$filterAuthor}+$filterAuthorDate+{$filterCommitter}+{$filterCommitterDate}&per_page=1");
+        $response = $this->api->post('graphql', [
+            'query' => $query,
+            'variables' => [
+                'login' => $username,
+                'since' => now()->subYear()->format('Y-m-d\TH:i:s'),
+            ]
+        ]);
 
-        if ($response->status() === 403 && $response->header('X-RateLimit-Remaining') == 0) {
+        if ($response->status() === 403 && ($response->header('X-RateLimit-Remaining') == 0 || $response->header('Retry-After') !== null)) {
             throw new RateLimitedExceededException();
         }
 
-        return $response->json()['total_count'] > 0;
+        if ($response->status() === 502) {
+            throw new ErrorException(errors: $response->json()['errors'], response: $response->json());
+        }
+
+        if ($response->status() === 200 && !isset($response->json()['data'])) {
+            throw new ErrorException(response: $response->json());
+        }
+
+        return $response->json();
     }
 
-    /**
-     * @throws RateLimitedExceededException
-     * @throws ConnectionException
-     */
-    public function checkIfUserHasAtLeast4RepositoriesPhpLanguage(string $username): bool
+
+    /* ############  Mount Query  ############ */
+
+    private function mountQueryForSearchUsers(): string
     {
-        $response = $this->api->get("/search/repositories?q=language:php+user:{$username}&per_page=1");
+        return <<<GRAPHQL
+            query(\$query: String!, \$after: String) {
+                search(query: \$query, type: USER, after: \$after, first: 100) {
+                    userCount
+                    pageInfo {
+                        endCursor
+                        hasNextPage
+                    }
+                    edges {
+                        node {
+                            ... on User {
+                                login
+                                name
+                                email
+                                avatarUrl
+                                url
+                                bio
+                                location
 
-        if ($response->status() === 403 && $response->header('X-RateLimit-Remaining') == 0) {
-            throw new RateLimitedExceededException();
-        }
+                                {$this->mountQueryFollowersForSearchUsers()}
+                                {$this->mountQueryRepositoriesForSearchUsers()}
+                                {$this->mountQueryRepositoriesContributedTosForSearchUsers()}
+                            }
+                        }
+                    }
+                }
+            }
+        GRAPHQL;
+    }
 
-        return $response->json()['total_count'] > 0;
+    private function mountQueryFollowersForSearchUsers(): string
+    {
+        return "
+            followers {
+                totalCount
+            }
+        ";
+    }
+
+    private function mountQueryRepositoriesForSearchUsers(): string
+    {
+        return "
+            repositories (first: 100, isFork: false) {
+                totalCount
+                nodes {
+                    stargazerCount
+
+                    primaryLanguage {
+                        name
+                    }
+                }
+            }
+        ";
+    }
+
+    private function mountQueryRepositoriesContributedTosForSearchUsers(): string
+    {
+        return "
+            repositoriesContributedTo {
+                totalCount
+            }
+        ";
     }
 }

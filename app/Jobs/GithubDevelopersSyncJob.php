@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Integrations\Github\Exceptions\ErrorException;
 use App\Integrations\Github\Exceptions\RateLimitedExceededException;
 use App\Integrations\Github\GithubIntegration;
 use Carbon\Carbon;
@@ -10,7 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
-use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class GithubDevelopersSyncJob implements ShouldQueue
 {
@@ -20,10 +21,9 @@ class GithubDevelopersSyncJob implements ShouldQueue
     use SerializesModels;
 
     public function __construct(
-        private readonly int     $page = 1,
-        private readonly ?string $locationExpr = null,
         private readonly string  $createdStart = '2008-01-01',
         private readonly string  $createdEnd = '2008-01-08',
+        private readonly ?string $after = null,
     )
     {
         $this->onQueue('developers-sync');
@@ -34,27 +34,29 @@ class GithubDevelopersSyncJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $expression = "created:{$this->createdStart}..{$this->createdEnd}";
-
         try {
-            $users = (new GithubIntegration())->searchUsers($expression, $this->page);
+            $response = (new GithubIntegration())->searchUsers("{$this->createdStart}..{$this->createdEnd}", $this->after);
 
-            foreach ($users as $user) {
-                GithubCheckDeveloperHasActivitiesOnLastYearJob::dispatch($user->login);
-            }
+            GithubDevelopersConfigure::dispatch($response['data']['search']['edges']);
 
-            $this->checkToDispatchGithubUsersSyncJob($users);
+            $this->checkToDispatchGithubDevelopersSyncJob($response['data']['search']['pageInfo']);
 
         } catch (RateLimitedExceededException $e) {
+            Log::error("RateLimitedExceededException ## Failed to sync developers");
+
             $this->release($e->getRetryAfter());
+        } catch (ErrorException $e) {
+            Log::error("GithubErrorException ## Failed to sync developers", [
+                'errors' => $e->getErrors(),
+                'response' => $e->getResponse(),
+            ]);
         }
     }
 
-    private function checkToDispatchGithubUsersSyncJob(Collection $users): void
+    private function checkToDispatchGithubDevelopersSyncJob(array $pageInfo): void
     {
-        if (sizeof($users) > 99) {
-            GithubDevelopersSyncJob::dispatch($this->page + 1);
-
+        if ($pageInfo['hasNextPage']) {
+            GithubDevelopersSyncJob::dispatch($this->createdStart, $this->createdEnd, $pageInfo['endCursor']);
             return;
         }
 
@@ -62,7 +64,7 @@ class GithubDevelopersSyncJob implements ShouldQueue
         $newCreatedEnd = Carbon::parse($newCreatedStart)->addWeek()->format('Y-m-d');
 
         if ($newCreatedStart < Carbon::now()->format('Y-m-d')) {
-            GithubDevelopersSyncJob::dispatch(createdStart: $newCreatedStart, createdEnd: $newCreatedEnd);
+            GithubDevelopersSyncJob::dispatch($newCreatedStart, $newCreatedEnd);
         }
     }
 

@@ -3,6 +3,7 @@
 namespace App\Livewire\Developers;
 
 use App\Models\Developer;
+use App\Traits\HasDeveloperFilters;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\{LengthAwarePaginator};
 use Illuminate\View\View;
@@ -13,44 +14,16 @@ use TallStackUi\Traits\Interactions;
 class Index extends Component
 {
     use Interactions;
-
-    public ?array $starOptions = null;
-
-    public ?array $repositoriesOptions = null;
-
-    public ?array $followersOptions = null;
-
-    public ?array $favoriteOptions = null;
-
-    public ?int $stars = null;
-
-    public ?int $repositories = null;
-
-    public ?int $followers = null;
-
-    public ?int $favorites = null;
+    use HasDeveloperFilters;
 
     public function render(): View
     {
-        return view('livewire.developers.index')
-            ->layout('layouts.app');
+        return view('livewire.developers.index')->layout('layouts.app');
     }
 
     public function mount(): void
     {
-        $this->favorites = 0;
-
-        $this->starOptions = $this->getSelectOptions('estrela');
-
-        $this->repositoriesOptions = $this->getSelectOptions('repositório');
-
-        $this->followersOptions = $this->getSelectOptions('seguidor', 'seguidores');
-
-        $this->favoriteOptions = [
-            ['label' => 'Todos', 'value' => 0],
-            ['label' => 'Favoritados', 'value' => 1],
-            ['label' => 'Não favoritados', 'value' => 2],
-        ];
+        $this->configureDeveloperFilters();
     }
 
     #[Computed]
@@ -67,21 +40,17 @@ class Index extends Component
             ->when($this->followers, function (Builder $query, int $followers) {
                 return $query->where('followers', '>', $followers);
             })
-            ->when($this->favorites, function (Builder $query, int $favorites) {
-                if ($favorites === 1) {
-                    return $query->whereHas('favoriteBy', function (Builder $query) use ($favorites) {
-                        return $query->where('user_id', auth()->id());
-                    });
-                } else if ($favorites === 2) {
-                    return $query->doesntHave('favoriteBy', function (Builder $query) use ($favorites) {
-                        return $query->where('user_id', auth()->id());
-                    });
-                }
+            ->when($this->favorites, function (Builder $query, $favorites) {
+                if ($favorites === 0) return $query;
 
-                return $query;
+                $relationQuery = $favorites == 1 ? "whereHas" : "whereDoesntHave";
+
+                return $query->{$relationQuery}('favoriteBy', function (Builder $query) {
+                    return $query->where('user_id', auth()->id());
+                });
             })
             ->orderByDesc('score')
-            ->paginate(10);
+            ->paginate();
 
         return tap($developers, function (LengthAwarePaginator $developers) {
             $developers->getCollection()->transform(function (Developer $developer) {
@@ -108,20 +77,5 @@ class Index extends Component
         $this->toast()
             ->success('Desenvolvedor removido dos favoritos com sucesso')
             ->send();
-    }
-
-    public function getSelectOptions(string $singularName, string $pluralName = null): array
-    {
-        $pluralName = $pluralName ?? $singularName . 's';
-
-        return [
-            ['label' => "Mais de 1 {$singularName}", 'value' => 1],
-            ['label' => "Mais de 10 {$pluralName}", 'value' => 10],
-            ['label' => "Mais de 25 {$pluralName}", 'value' => 25],
-            ['label' => "Mais de 50 {$pluralName}", 'value' => 50],
-            ['label' => "Mais de 100 {$pluralName}", 'value' => 100],
-            ['label' => "Mais de 500 {$pluralName}", 'value' => 500],
-            ['label' => "Mais de 1000 {$pluralName}", 'value' => 1000],
-        ];
     }
 }

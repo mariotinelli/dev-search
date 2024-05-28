@@ -12,13 +12,15 @@ class Developer extends Model
         'login',
         'name',
         'avatar_url',
-        'html_url',
-        'email',
+        'url',
         'location',
+        'email',
         'bio',
         'followers',
         'repos',
         'stars',
+        'commits',
+        'repos_contributions',
         'score',
     ];
 

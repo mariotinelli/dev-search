@@ -15,7 +15,7 @@ class RetryJobsMaxAttemptsExceptionCommand extends Command
     public function handle(): void
     {
         $failedJobs = DB::table('failed_jobs')
-            ->where('exception', 'like', '%Illuminate\Queue\MaxAttemptsExceededException%')
+            ->where('exception', 'like', '%MaxAttemptsExceededException%')
             ->get();
 
         $failedJobs->each(function ($failedJob) {
