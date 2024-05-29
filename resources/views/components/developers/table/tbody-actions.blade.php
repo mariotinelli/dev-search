@@ -9,7 +9,7 @@
         title="Ver perfil no GitHub"
         href="{{ $developer->url }}"
         target="_blank"
-        class="text-sm text-white bg-white-800 p-1.5 rounded-full"
+        class="text-sm text-white bg-white border border-white rounded-full"
     >
         <x-icons.github />
     </a >

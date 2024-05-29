@@ -62,9 +62,9 @@ readonly class Developer
     public function calculateScore(int $stars, int $commitsInLastYear): int
     {
         return $this->followers * 0.1 +
-            $this->repositories->count() * 0.05 +
-            $stars * 0.3 +
-            $commitsInLastYear * 0.05 +
+            $this->repositories->count() * 0.03 +
+            $stars * 0.2 +
+            $commitsInLastYear * 0.01 +
             $this->reposContributions * 0.1;
     }
 }
