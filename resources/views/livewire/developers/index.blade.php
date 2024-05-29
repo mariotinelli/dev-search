@@ -4,7 +4,8 @@
     </h2 >
 </x-slot >
 
-<div class="py-12" >
+<div class="py-12"
+     x-data="{ openFilters: false }" >
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8" >
         <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6" >
 
@@ -16,54 +17,33 @@
                 <hr >
             </div >
 
-            <div class="flex flex-col gap-8" >
+            <div class="flex items-center justify-between" >
                 <h3 class="text-xl text-gray-900 dark:text-gray-100" >
-                    {{ __('Filtros') }}
+                    {{ __('Desenvolvedores') }}
                 </h3 >
 
-                <div class="py-2 grid grid-cols-4 gap-3 z-100" >
-
-                    <x-ts-select.native
-                        label="Favoritos"
-                        wire:model.live="favorites"
-                        select="label:label|value:value"
-                        :options="$favoriteOptions"
+                <div class="flex items-center gap-2 relative" >
+                    <x-ts-input
+                        placeholder="Busque um desenvolvedor"
+                        class="w-72"
+                        wire:model.live="search"
+                        icon="magnifying-glass"
                     />
 
-                    <x-ts-select.styled
-                        label="Estrelas"
-                        placeholder="Selecione a quantidade de estrelas"
-                        wire:model.live="stars"
-                        select="label:label|value:value"
-                        :options="$starOptions"
+                    <x-icons.funnel
+                        @click.outside="openFilters = false"
+                        x-on:click="openFilters = !openFilters"
+                        class="w-6 h-6 text-gray-500 hover:cursor-pointer"
                     />
 
-                    <x-ts-select.styled
-                        label="Repositórios"
-                        placeholder="Selecione a quantidade de repositórios"
-                        wire:model.live="repositories"
-                        select="label:label|value:value"
-                        :options="$repositoriesOptions"
+                    <x-developers.table.filters
+                        :favoriteOptions="$this->favoriteOptions"
+                        :starsOptions="$this->starsOptions"
+                        :repositoriesOptions="$this->repositoriesOptions"
+                        :followersOptions="$this->followersOptions"
                     />
-
-                    <x-ts-select.styled
-                        label="Seguidores"
-                        placeholder="Selecione a quantidade de seguidores"
-                        wire:model.live="followers"
-                        select="label:label|value:value"
-                        :options="$followersOptions"
-                    />
-
                 </div >
             </div >
-
-            <div class="py-6" >
-                <hr >
-            </div >
-
-            <h3 class="text-xl text-gray-900 dark:text-gray-100" >
-                {{ __('Desenvolvedores encontrados') }}
-            </h3 >
 
             <div class="my-8" >
 

@@ -17,7 +17,8 @@ readonly class Developer
         public int        $reposContributions,
         public ?string    $email = null,
         public ?string    $bio = null
-    ) {
+    )
+    {
     }
 
     public static function createFromApiWithGraphQL(array $data): self
@@ -53,20 +54,9 @@ readonly class Developer
         return $collectionRepositories;
     }
 
-    public function hasAtLeast4RepositoriesInLanguages(array $languages): bool
-    {
-        if (sizeof($this->repositories) < 4) {
-            return false;
-        }
-
-        return collect($this->repositories)
-            ->filter(fn (Repository $repo) => in_array(strtolower($repo->primaryLanguageName), $languages))
-            ->count() >= 4;
-    }
-
     public function calculateStars(): int
     {
-        return $this->repositories->reduce(fn ($carry, Repository $repo) => $carry + $repo->stargazers_count, 0);
+        return $this->repositories->reduce(fn($carry, Repository $repo) => $carry + $repo->stargazers_count, 0);
     }
 
     public function calculateScore(int $stars, int $commitsInLastYear): int

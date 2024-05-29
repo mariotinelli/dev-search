@@ -27,7 +27,7 @@ class Developer extends Model
     public function email(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => empty($value) ? 'E-mail não informado' : $value,
+            get: fn($value) => empty($value) ? 'Não informado' : $value,
         );
     }
 

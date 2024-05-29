@@ -11,12 +11,12 @@ class ErrorException extends Exception
 
     protected array $errors = [];
 
-    protected ?string $response = null;
+    protected ?array $response = null;
 
-    public function __construct(string $message = "", int $code = 0, ?Throwable $previous = null, array $errors = [], ?string $response = null)
+    public function __construct(string $message = "", int $code = 0, ?Throwable $previous = null, array $errors = [], ?array $response = null)
     {
         parent::__construct($message, $code, $previous);
-        $this->errors   = $errors;
+        $this->errors = $errors;
         $this->response = $response;
     }
 
@@ -25,7 +25,7 @@ class ErrorException extends Exception
         return $this->errors;
     }
 
-    public function getResponse(): ?string
+    public function getResponse(): ?array
     {
         return $this->response;
     }

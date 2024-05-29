@@ -8,68 +8,20 @@
 
     <tr class="odd:bg-white dark:odd:bg-gray-800 even:bg-zinc-100 dark:even:bg-gray-900" >
 
-        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-white" >
-            {{ $developer->name }}
-        </td >
+        <x-developers.table.tbody-actions
+            :developer="$developer"
+            :loop="$loop"
+        />
 
-        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-white" >
-            {{ $developer->email }}
-        </td >
+        <x-developers.table.tbody-item :value="$developer->name" />
+        <x-developers.table.tbody-item :value="$developer->email" />
+        <x-developers.table.tbody-item :value="$developer->score" />
+        <x-developers.table.tbody-item :value="$developer->followers" />
+        <x-developers.table.tbody-item :value="$developer->stars" />
+        <x-developers.table.tbody-item :value="$developer->repos" />
+        <x-developers.table.tbody-item :value="$developer->commits" />
+        <x-developers.table.tbody-item :value="$developer->repos_contributions" />
 
-        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-white" >
-            {{ $developer->followers }}
-        </td >
-
-        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-white" >
-            {{ $developer->stars }}
-        </td >
-
-        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-white" >
-            {{ $developer->repos }}
-        </td >
-
-        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-white" >
-            {{ $developer->commits }}
-        </td >
-
-        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-white" >
-            {{ $developer->repos_contributions }}
-        </td >
-
-        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-white" >
-            {{ $developer->score }}
-        </td >
-
-        <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-white flex items-center gap-2 @if($loop->last) rounded-br-lg @endif" >
-
-            <a
-                title="Ver perfil no GitHub"
-                href="{{ $developer->url }}"
-                target="_blank"
-                class="text-sm text-white bg-white-800 p-1.5 rounded-full"
-            >
-                <x-icons.github />
-            </a >
-
-            @if($developer->is_favorite)
-                <button
-                    title="Remover dos favoritos"
-                    wire:click="unfavoriteDeveloper({{ $developer->id }})"
-                    class="text-sm text-white bg-red-800 p-1.5 rounded-full"
-                >
-                    <x-icons.heart class="w-3.5 h-3.5" />
-                </button >
-            @else
-                <button
-                    title="Favoritar"
-                    wire:click="favoriteDeveloper({{ $developer->id }})"
-                    class="text-sm text-red-800 bg-white border border-red-800 p-1.5 rounded-full"
-                >
-                    <x-icons.heart class="w-3.5 h-3.5" />
-                </button >
-            @endif
-
-        </td >
     </tr >
 
 @empty

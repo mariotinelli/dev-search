@@ -27,7 +27,7 @@ class GithubIntegration
 
         $this->api = Http::baseUrl('https://api.github.com/')
             ->withHeaders([
-                'Accept'        => 'application/vnd.github.v3+json',
+                'Accept' => 'application/vnd.github.v3+json',
                 'Authorization' => 'Bearer ' . config('services.github.token'),
             ]);
     }
@@ -38,7 +38,7 @@ class GithubIntegration
      * @throws ErrorException
      * @throws ConnectionException
      */
-    public function getDeveloperEmail(string $username): string
+    public function getDeveloperEmail(string $username): ?string
     {
         $response = $this->api->get("users/$username");
 
@@ -59,10 +59,10 @@ class GithubIntegration
     public function searchDevelopers(string $created, string $after = null): array
     {
         $response = $this->api->post('graphql', [
-            'query'     => $this->mountQueryForSearchDevelopers(),
+            'query' => $this->mountQueryForSearchDevelopers(),
             'variables' => [
                 'after' => $after,
-                'query' => "location:Brazil location:Brasil language:php language:blade language:laravel created:$created",
+                'query' => "language:php location:Brazil location:Brasil created:$created",
             ],
         ]);
 
@@ -103,7 +103,7 @@ class GithubIntegration
         GRAPHQL;
 
         $response = $this->api->post('graphql', [
-            'query'     => $query,
+            'query' => $query,
             'variables' => [
                 'login' => $username,
                 'since' => now()->subYear()->format('Y-m-d\TH:i:s'),

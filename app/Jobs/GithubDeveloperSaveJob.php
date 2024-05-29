@@ -23,7 +23,8 @@ class GithubDeveloperSaveJob implements ShouldQueue
     public function __construct(
         public readonly GithubDeveloper $githubDeveloper,
         public readonly int             $commitsInLastYear,
-    ) {
+    )
+    {
     }
 
     /**
@@ -32,7 +33,10 @@ class GithubDeveloperSaveJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            $developerEmail = (new GithubIntegration())->getDeveloperEmail($this->githubDeveloper->login);
+
+            $developerEmail = is_null($this->githubDeveloper->email) || empty($this->githubDeveloper->email)
+                ? (new GithubIntegration())->getDeveloperEmail($this->githubDeveloper->login)
+                : $this->githubDeveloper->email;
 
             $this->saveDeveloper($developerEmail);
 
@@ -46,7 +50,7 @@ class GithubDeveloperSaveJob implements ShouldQueue
 
         } catch (ErrorException $errorException) {
             Log::error("GithubErrorException ## Failed to check if developer has activities on last year: {$this->githubDeveloper->login}", [
-                'errors'   => $errorException->getErrors(),
+                'errors' => $errorException->getErrors(),
                 'response' => $errorException->getResponse(),
             ]);
         }
@@ -58,18 +62,18 @@ class GithubDeveloperSaveJob implements ShouldQueue
 
         Developer::query()
             ->updateOrCreate(['login' => $this->githubDeveloper->login], [
-                'name'                => $this->githubDeveloper->name,
-                'email'               => !empty($developerEmail) || !is_null($developerEmail) ? $developerEmail : "Não informado",
-                'avatar_url'          => $this->githubDeveloper->avatarUrl,
-                'url'                 => $this->githubDeveloper->url,
-                'location'            => $this->githubDeveloper->location,
-                'followers'           => $this->githubDeveloper->followers,
-                'repos'               => $this->githubDeveloper->repositories->count(),
-                'stars'               => $stars,
-                'commits'             => $this->commitsInLastYear,
+                'name' => $this->githubDeveloper->name,
+                'email' => !empty($developerEmail) || !is_null($developerEmail) ? $developerEmail : "Não informado",
+                'avatar_url' => $this->githubDeveloper->avatarUrl,
+                'url' => $this->githubDeveloper->url,
+                'location' => $this->githubDeveloper->location,
+                'followers' => $this->githubDeveloper->followers,
+                'repos' => $this->githubDeveloper->repositories->count(),
+                'stars' => $stars,
+                'commits' => $this->commitsInLastYear,
                 'repos_contributions' => $this->githubDeveloper->reposContributions,
-                'bio'                 => $this->githubDeveloper->bio ?? null,
-                'score'               => $this->githubDeveloper->calculateScore($stars, $this->commitsInLastYear),
+                'bio' => $this->githubDeveloper->bio ?? null,
+                'score' => $this->githubDeveloper->calculateScore($stars, $this->commitsInLastYear),
             ]);
     }
 }
