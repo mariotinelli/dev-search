@@ -2,22 +2,34 @@
     "name": "laravel/laravel",
     "type": "project",
     "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "keywords": [
+        "laravel",
+        "framework"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.2",
         "laravel/framework": "^11.0",
-        "laravel/tinker": "^2.9"
+        "laravel/horizon": "^5.24",
+        "laravel/tinker": "^2.9",
+        "laravellegends/pt-br-validator": "^11.0",
+        "livewire/livewire": "^3.5",
+        "tallstackui/tallstackui": "^1.27"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.13",
         "fakerphp/faker": "^1.23",
+        "laradumps/laradumps": "3.0",
+        "laravel-lang/common": "^6.2",
         "laravel/breeze": "^2.0",
-        "laravel/pint": "^1.13",
+        "laravel/pint": "^1.16",
         "laravel/sail": "^1.26",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.0",
         "pestphp/pest": "^2.0",
-        "pestphp/pest-plugin-laravel": "^2.0",
+        "pestphp/pest-plugin-faker": "^2.0",
+        "pestphp/pest-plugin-laravel": "^2.4",
+        "pestphp/pest-plugin-livewire": "^2.1",
         "spatie/laravel-ignition": "^2.4"
     },
     "autoload": {
@@ -25,7 +37,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/Helpers/cpf.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
