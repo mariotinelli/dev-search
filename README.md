@@ -96,21 +96,20 @@ Links para instalação e configuração de Docker:
         - E-mail: cto@example.com
         - Senha: password
 
+### Métricas de Avaliação
 
-9. **Métricas de Avaliação**
+As métricas usadas para avaliar os desenvolvedores são calculadas com base nos seguintes critérios:
 
-   As métricas usadas para avaliar os desenvolvedores são calculadas com base nos seguintes critérios:
-
-    - **Seguidores**: Número de seguidores no GitHub.
-        - Ponderação: 0.1
-    - **Repositórios**: Número de repositórios do desenvolvedor.
-        - Ponderação: 0.03
-    - **Estrelas**: Número total de estrelas que o desenvolvedor recebeu em seus repositórios.
-        - Ponderação: 0.2
-    - **Commits no último ano**: Número de commits realizados pelo desenvolvedor no último ano.
-        - Ponderação: 0.01
-    - **Contribuições em repositórios**: Número de repositórios em que o desenvolvedor contribuiu.
-        - Ponderação: 0.1
+- **Seguidores**: Número de seguidores no GitHub.
+    - Ponderação: 0.1
+- **Repositórios**: Número de repositórios do desenvolvedor.
+    - Ponderação: 0.03
+- **Estrelas**: Número total de estrelas que o desenvolvedor recebeu em seus repositórios.
+    - Ponderação: 0.2
+- **Commits no último ano**: Número de commits realizados pelo desenvolvedor no último ano.
+    - Ponderação: 0.01
+- **Contribuições em repositórios**: Número de repositórios em que o desenvolvedor contribuiu.
+    - Ponderação: 0.1
 
    
 
