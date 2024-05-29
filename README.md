@@ -21,6 +21,7 @@ Links para instalação e configuração de Docker:
    ```
    git clone https://github.com/mariotinelli/dev-search.git
    cd dev-search
+    ```
 
 2. **Copie o arquivo .env.example para .env e configure:**
 
@@ -42,7 +43,7 @@ Links para instalação e configuração de Docker:
 
    Execute o comando abaixo para iniciar o ambiente de desenvolvimento:
     ```shell
-    ./vendor/bin/sail up
+    ./vendor/bin/sail up -d
     ```
 
 5. **Execute as migrações e seeders**
