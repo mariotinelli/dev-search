@@ -12,7 +12,7 @@ class RoleMiddleware
         $roles = explode('|', $roles);
 
         foreach ($roles as $role) {
-            if (auth()->user()->hasRole($role)) {
+            if (auth()->user()->hasRole($role) || auth()->user()->isAdmin()) {
                 return $next($request);
             }
         }

@@ -9,11 +9,13 @@ use Illuminate\Pagination\{LengthAwarePaginator};
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use Livewire\WithPagination;
 use TallStackUi\Traits\Interactions;
 
 class Index extends Component
 {
     use Interactions;
+    use WithPagination;
     use HasDeveloperFilters;
 
     public function render(): View
@@ -26,11 +28,30 @@ class Index extends Component
         $this->configureDeveloperFilters();
     }
 
+    public function updated(string $propertyName): void
+    {
+        if ($this->{$propertyName} == '') {
+            $this->{$propertyName} = null;
+        }
+    }
+
     #[Computed]
     public function developers(): LengthAwarePaginator
     {
         $developers = Developer::query()
             ->with(['favoriteBy'])
+            ->when($this->search, function (Builder $query, string $search) {
+                return $query->whereAny([
+                    'name',
+                    'email',
+                    'followers',
+                    'stars',
+                    'repos',
+                    'commits',
+                    'repos_contributions',
+                    'score'
+                ], 'like', '%' . $search . '%');
+            })
             ->when($this->stars, function (Builder $query, int $stars) {
                 return $query->where('stars', '>', $stars);
             })
@@ -41,7 +62,9 @@ class Index extends Component
                 return $query->where('followers', '>', $followers);
             })
             ->when($this->favorites, function (Builder $query, $favorites) {
-                if ($favorites === 0) return $query;
+                if ($favorites === 0) {
+                    return $query;
+                }
 
                 $relationQuery = $favorites == 1 ? "whereHas" : "whereDoesntHave";
 
@@ -49,8 +72,8 @@ class Index extends Component
                     return $query->where('user_id', auth()->id());
                 });
             })
-            ->orderByDesc('score')
-            ->paginate();
+            ->orderBy($this->sortField, $this->sortDirection)
+            ->paginate(10);
 
         return tap($developers, function (LengthAwarePaginator $developers) {
             $developers->getCollection()->transform(function (Developer $developer) {

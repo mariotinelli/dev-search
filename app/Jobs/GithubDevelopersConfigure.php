@@ -23,18 +23,9 @@ class GithubDevelopersConfigure implements ShouldQueue
 
     public function handle(): void
     {
-        $developers = collect();
-
         foreach ($this->responseDevelopers as $developer) {
             if (!empty($developer['node']) && !is_null($developer['node']['name'])) {
-                $developers->push(Developer::createFromGraphQL($developer['node']));
-            }
-        }
-
-        foreach ($developers as $developer) {
-            /** @var Developer $developer */
-            if ($developer->hasAtLeast4RepositoriesInLanguages(['php', 'laravel', 'blade'])) {
-                GithubDeveloperCheckHasActivitiesOnLastYearJob::dispatch($developer);
+                GithubDeveloperCheckHasActivitiesOnLastYearJob::dispatch(Developer::createFromApiWithGraphQL($developer['node']));
             }
         }
     }

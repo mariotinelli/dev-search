@@ -207,7 +207,7 @@ return [
         'local' => [
             'supervisor-1' => [
                 'queue' => ['default', 'developers-sync'],
-                'maxProcesses' => 3,
+                'maxProcesses' => 4,
             ],
         ],
     ],

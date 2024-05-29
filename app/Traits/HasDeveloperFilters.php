@@ -2,9 +2,32 @@
 
 namespace App\Traits;
 
+use Livewire\Attributes\Url;
+
 trait HasDeveloperFilters
 {
-    public ?array $starOptions = null;
+    #[Url(as: 's', nullable: false)]
+    public ?string $search = null;
+
+    #[Url(as: 'st', nullable: false)]
+    public string $sortField = 'score';
+
+    #[Url(as: 'dir', nullable: false)]
+    public string $sortDirection = 'desc';
+
+    #[Url(as: 'estrelas', nullable: false)]
+    public ?int $stars = null;
+
+    #[Url(as: 'repos', nullable: false)]
+    public ?int $repositories = null;
+
+    #[Url(as: 'seguidores', nullable: false)]
+    public ?int $followers = null;
+
+    #[Url(as: 'favorito', nullable: false)]
+    public ?int $favorites = null;
+
+    public ?array $starsOptions = null;
 
     public ?array $repositoriesOptions = null;
 
@@ -12,19 +35,11 @@ trait HasDeveloperFilters
 
     public ?array $favoriteOptions = null;
 
-    public ?int $stars = null;
-
-    public ?int $repositories = null;
-
-    public ?int $followers = null;
-
-    public ?int $favorites = null;
-
     private function configureDeveloperFilters(): void
     {
         $this->favorites = 0;
 
-        $this->starOptions = $this->getSelectOptions('estrela');
+        $this->starsOptions = $this->getSelectOptions('estrela');
 
         $this->repositoriesOptions = $this->getSelectOptions('repositório');
 
@@ -50,5 +65,16 @@ trait HasDeveloperFilters
             ['label' => "Mais de 500 {$pluralName}", 'value' => 500],
             ['label' => "Mais de 1000 {$pluralName}", 'value' => 1000],
         ];
+    }
+
+    public function clearFilters(): void
+    {
+        $this->stars = null;
+
+        $this->repositories = null;
+
+        $this->followers = null;
+
+        $this->favorites = 0;
     }
 }

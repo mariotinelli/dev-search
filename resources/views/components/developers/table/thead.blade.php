@@ -1,54 +1,53 @@
 <thead class="bg-gray-50 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-500" >
 <tr >
 
-    <th
-        scope="col"
-        class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white"
-    >
-        {{ __('Nome') }}
-    </th >
+    <x-developers.table.thead-item
+        label="Ações"
+        class="w-32"
+    />
 
-    <th
-        scope="col"
-        class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white"
-    >
-        {{ __('E-mail') }}
-    </th >
+    <x-developers.table.thead-item
+        label="Nome"
+        column="name"
+    />
 
-    <th
-        scope="col"
-        class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white"
-    >
-        {{ __('Seguidores') }}
-    </th >
+    <x-developers.table.thead-item
+        label="E-mail"
+        column="email"
+        class="min-w-32"
+    />
 
-    <th
-        scope="col"
-        class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white"
-    >
-        {{ __('Estrelas') }}
-    </th >
+    <x-developers.table.thead-item
+        label="Pontuação"
+        column="score"
+    />
 
-    <th
-        scope="col"
-        class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white"
-    >
-        {{ __('Repositórios') }}
-    </th >
+    <x-developers.table.thead-item
+        label="Seguidores"
+        column="followers"
+    />
 
-    <th
-        scope="col"
-        class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white"
-    >
-        {{ __('Pontuação') }}
-    </th >
+    <x-developers.table.thead-item
+        label="Estrelas"
+        column="stars"
+    />
 
-    <th
-        scope="col"
-        class="relative sm:pr-6 text-center text-sm font-semibold text-gray-900 dark:text-white w-32"
-    >
-        <span >Ações</span >
-    </th >
+    <x-developers.table.thead-item
+        label="Repositórios"
+        column="repos"
+    />
+
+    <x-developers.table.thead-item
+        label="Commits (Último Ano)"
+        column="commits"
+        class="min-w-48"
+    />
+
+    <x-developers.table.thead-item
+        label="Contribuições"
+        column="repos_contributions"
+    />
+
 </tr >
 
 </thead >

@@ -7,9 +7,9 @@ use Illuminate\Console\Command;
 
 class GithubDevelopersSyncCommand extends Command
 {
-    protected $signature = 'github-developers-sync';
+    protected $signature = 'fetch:developers';
 
-    protected $description = 'Sync users from Github API and store in database.';
+    protected $description = 'Fetch developers from Github API and store in database.';
 
     public function handle(): void
     {

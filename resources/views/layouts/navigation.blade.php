@@ -13,16 +13,14 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex" >
-                    @if(auth()->user()->isCto() || auth()->user()->isAssistant())
-                        <x-nav-link
-                            :href="route('developers.index')"
-                            :active="request()->routeIs('developers.index')"
-                        >
-                            {{ __('Desenvolvedores') }}
-                        </x-nav-link >
-                    @endif
+                    <x-nav-link
+                        :href="route('developers.index')"
+                        :active="request()->routeIs('developers.index')"
+                    >
+                        {{ __('Desenvolvedores') }}
+                    </x-nav-link >
 
-                    @if(auth()->user()->isCto())
+                    @if(auth()->user()->isCto() || auth()->user()->isAdmin())
                         <x-nav-link
                             :href="route('assistants.index')"
                             :active="request()->routeIs('assistants.index')"

@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\RoleEnum;
-use App\Models\{Assistant, User};
+use App\Models\{User};
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -18,17 +18,17 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::factory()->create([
-            'name'    => 'Test User',
-            'email'   => 'test@example.com',
+            'name' => 'Administrador',
+            'email' => 'admin@example.com',
             'role_id' => RoleEnum::ADMIN,
         ]);
 
         User::factory()->create([
-            'name'    => 'Test CTO',
-            'email'   => 'test-cto@example.com',
+            'name' => 'CTO',
+            'email' => 'cto@example.com',
             'role_id' => RoleEnum::CTO,
         ]);
 
-        Assistant::factory(10)->create();
+//        Assistant::factory(10)->create();
     }
 }
