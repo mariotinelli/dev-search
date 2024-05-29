@@ -17,8 +17,7 @@ class GithubDevelopersConfigure implements ShouldQueue
 
     public function __construct(
         public readonly array $responseDevelopers
-    )
-    {
+    ) {
     }
 
     public function handle(): void
@@ -27,7 +26,7 @@ class GithubDevelopersConfigure implements ShouldQueue
 
         foreach ($this->responseDevelopers as $developer) {
             if (!empty($developer['node']) && !is_null($developer['node']['name'])) {
-                $developers->push(Developer::createFromGraphQL($developer['node']));
+                $developers->push(Developer::createFromApiWithGraphQL($developer['node']));
             }
         }
 

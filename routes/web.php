@@ -5,11 +5,11 @@ use App\Http\Controllers\ProfileController;
 use App\Livewire\{Assistants, Developers};
 use Illuminate\Support\Facades\Route;
 
-
 Route::get('/redis-test', function () {
     try {
         $redis = \Illuminate\Support\Facades\Redis::connection();
         $redis->set('test', 'Laravel Redis Connection');
+
         return $redis->get('test');
     } catch (\Exception $e) {
         return 'Redis connection failed: ' . $e->getMessage();

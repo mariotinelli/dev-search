@@ -41,7 +41,9 @@ class Index extends Component
                 return $query->where('followers', '>', $followers);
             })
             ->when($this->favorites, function (Builder $query, $favorites) {
-                if ($favorites === 0) return $query;
+                if ($favorites === 0) {
+                    return $query;
+                }
 
                 $relationQuery = $favorites == 1 ? "whereHas" : "whereDoesntHave";
 

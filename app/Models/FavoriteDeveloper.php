@@ -9,7 +9,7 @@ class FavoriteDeveloper extends Model
 {
     protected $fillable = [
         'user_id',
-        'developer_id'
+        'developer_id',
     ];
 
     public function user(): BelongsTo

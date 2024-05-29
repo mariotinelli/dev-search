@@ -22,8 +22,7 @@ class GithubDeveloperCheckHasActivitiesOnLastYearJob implements ShouldQueue
 
     public function __construct(
         public readonly Developer $developer,
-    )
-    {
+    ) {
     }
 
     /**
@@ -33,7 +32,7 @@ class GithubDeveloperCheckHasActivitiesOnLastYearJob implements ShouldQueue
     {
 
         try {
-            $response = (new GithubIntegration())->getAllUserCommitsOnTheLastYear($this->developer->login);
+            $response = (new GithubIntegration())->getAllDeveloperCommitsOnTheLastYear($this->developer->login);
 
             $responseDeveloper = $response['data']['user'];
 
@@ -57,7 +56,7 @@ class GithubDeveloperCheckHasActivitiesOnLastYearJob implements ShouldQueue
             $this->release($e->getRetryAfter());
         } catch (ErrorException $e) {
             Log::error("GithubErrorException ## Failed to check if developer has activities on last year: {$this->developer->login}", [
-                'errors' => $e->getErrors(),
+                'errors'   => $e->getErrors(),
                 'response' => $e->getResponse(),
             ]);
         }
@@ -73,7 +72,6 @@ class GithubDeveloperCheckHasActivitiesOnLastYearJob implements ShouldQueue
         if ($exception instanceof MaxAttemptsExceededException) {
             Log::error("MaxAttemptsExceededException ## Failed to check if developer has activities on last year: {$this->developer->login}");
         }
-
 
     }
 }

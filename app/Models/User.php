@@ -34,8 +34,8 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'role_id' => RoleEnum::class,
+            'password'          => 'hashed',
+            'role_id'           => RoleEnum::class,
         ];
     }
 

@@ -2,8 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Integrations\Github\Exceptions\ErrorException;
-use App\Integrations\Github\Exceptions\RateLimitedExceededException;
+use App\Integrations\Github\Exceptions\{ErrorException, RateLimitedExceededException};
 use App\Integrations\Github\GithubIntegration;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -24,8 +23,7 @@ class GithubDevelopersSyncJob implements ShouldQueue
         private readonly string  $createdStart = '2008-01-01',
         private readonly string  $createdEnd = '2008-01-08',
         private readonly ?string $after = null,
-    )
-    {
+    ) {
         $this->onQueue('developers-sync');
     }
 
@@ -35,7 +33,7 @@ class GithubDevelopersSyncJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            $response = (new GithubIntegration())->searchUsers("{$this->createdStart}..{$this->createdEnd}", $this->after);
+            $response = (new GithubIntegration())->searchDevelopers("{$this->createdStart}..{$this->createdEnd}", $this->after);
 
             GithubDevelopersConfigure::dispatch($response['data']['search']['edges']);
 
@@ -47,7 +45,7 @@ class GithubDevelopersSyncJob implements ShouldQueue
             $this->release($e->getRetryAfter());
         } catch (ErrorException $e) {
             Log::error("GithubErrorException ## Failed to sync developers", [
-                'errors' => $e->getErrors(),
+                'errors'   => $e->getErrors(),
                 'response' => $e->getResponse(),
             ]);
         }
@@ -57,11 +55,12 @@ class GithubDevelopersSyncJob implements ShouldQueue
     {
         if ($pageInfo['hasNextPage']) {
             GithubDevelopersSyncJob::dispatch($this->createdStart, $this->createdEnd, $pageInfo['endCursor']);
+
             return;
         }
 
         $newCreatedStart = Carbon::parse($this->createdEnd)->addDay()->format('Y-m-d');
-        $newCreatedEnd = Carbon::parse($newCreatedStart)->addWeek()->format('Y-m-d');
+        $newCreatedEnd   = Carbon::parse($newCreatedStart)->addWeek()->format('Y-m-d');
 
         if ($newCreatedStart < Carbon::now()->format('Y-m-d')) {
             GithubDevelopersSyncJob::dispatch($newCreatedStart, $newCreatedEnd);

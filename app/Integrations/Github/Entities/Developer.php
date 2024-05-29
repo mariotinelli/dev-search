@@ -3,7 +3,6 @@
 namespace App\Integrations\Github\Entities;
 
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 
 readonly class Developer
 {
@@ -18,11 +17,10 @@ readonly class Developer
         public int        $reposContributions,
         public ?string    $email = null,
         public ?string    $bio = null
-    )
-    {
+    ) {
     }
 
-    public static function createFromGraphQL(array $data): self
+    public static function createFromApiWithGraphQL(array $data): self
     {
         return new self(
             login: $data['login'],
@@ -40,12 +38,15 @@ readonly class Developer
 
     private static function getRepositories(array $repositories): Collection
     {
-        if (sizeof($repositories) === 0) return collect();
+        if (sizeof($repositories) === 0) {
+            return collect();
+        }
 
         $collectionRepositories = collect();
+
         foreach ($repositories as $repo) {
             if (!is_null($repo['primaryLanguage'])) {
-                $collectionRepositories->push(Repository::createFromGraphQL($repo));
+                $collectionRepositories->push(Repository::createFromApiWithGraphQL($repo));
             }
         }
 
@@ -54,28 +55,26 @@ readonly class Developer
 
     public function hasAtLeast4RepositoriesInLanguages(array $languages): bool
     {
-        if (sizeof($this->repositories) < 4) return false;
-
-        if (sizeof($this->repositories) > 100) {
-            Log::info('#### Developer has more than 100 repositories ####');
+        if (sizeof($this->repositories) < 4) {
+            return false;
         }
 
         return collect($this->repositories)
-                ->filter(fn(Repository $repo) => in_array(strtolower($repo->primaryLanguageName), $languages))
-                ->count() >= 4;
+            ->filter(fn (Repository $repo) => in_array(strtolower($repo->primaryLanguageName), $languages))
+            ->count() >= 4;
     }
 
     public function calculateStars(): int
     {
-        return $this->repositories->reduce(fn($carry, Repository $repo) => $carry + $repo->stargazers_count, 0);
+        return $this->repositories->reduce(fn ($carry, Repository $repo) => $carry + $repo->stargazers_count, 0);
     }
 
     public function calculateScore(int $stars, int $commitsInLastYear): int
     {
-        return $this->followers * 0.4 +
-            $this->repositories->count() * 0.3 +
-            $stars * 0.5 +
-            $commitsInLastYear * 0.4 +
-            $this->reposContributions * 0.4;
+        return $this->followers * 0.1 +
+            $this->repositories->count() * 0.05 +
+            $stars * 0.3 +
+            $commitsInLastYear * 0.05 +
+            $this->reposContributions * 0.1;
     }
 }

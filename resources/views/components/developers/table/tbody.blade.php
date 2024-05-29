@@ -29,6 +29,14 @@
         </td >
 
         <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-white" >
+            {{ $developer->commits }}
+        </td >
+
+        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-white" >
+            {{ $developer->repos_contributions }}
+        </td >
+
+        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-white" >
             {{ $developer->score }}
         </td >
 
@@ -36,7 +44,7 @@
 
             <a
                 title="Ver perfil no GitHub"
-                href="{{ $developer->html_url }}"
+                href="{{ $developer->url }}"
                 target="_blank"
                 class="text-sm text-white bg-white-800 p-1.5 rounded-full"
             >
